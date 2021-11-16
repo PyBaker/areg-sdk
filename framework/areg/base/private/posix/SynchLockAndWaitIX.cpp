@@ -93,7 +93,7 @@ int SynchLockAndWaitIX::eventSignaled( IEWaitableBaseIX & synchWaitable )
     if ( waitList != nullptr)
     {
         ASSERT( waitList->isEmpty( ) == false );
-        OUTPUT_DBG("Waitable [ %s ] ID [ %p ] is signaled, there are [ %d ] locks accosiated with it."
+        OUTPUT_DBG("Waitable [ %s ] ID [ %p ] is signaled, there are [ %d ] locks associated with it."
                     , synchWaitable.getName()
                     , &synchWaitable
                     , waitList->getSize());
@@ -227,7 +227,7 @@ bool SynchLockAndWaitIX::notifyAsynchSignal( id_type threadId )
 
     SynchResourceMapIX & mapResource = SynchLockAndWaitIX::_theSynchResourceMapIX;
     mapResource.lock( );
-    do 
+    do
     {
         SynchLockAndWaitIX::_mapWaitIdResource.lock();
         SynchLockAndWaitIX * lockAndWait = SynchLockAndWaitIX::_mapWaitIdResource.findResourceObject(threadId);
@@ -541,11 +541,11 @@ bool SynchLockAndWaitIX::_requestOwnership( const NESynchTypesIX::eSynchObjectFi
     {
         ASSERT(mWaitingList.getSize() > static_cast<int>(firedEvent));
         IEWaitableBaseIX *waitable = mWaitingList[static_cast<int>(firedEvent)];
-        
+
 #ifdef DEBUG
         if (waitable == nullptr)
         {
-            OUTPUT_ERR("Atention! A waitable at index [ %d ] in the list [ %p ] having size [ %d] of thread [ %p ] has address [ %p ]"
+            OUTPUT_ERR("Attention! A waitable at index [ %d ] in the list [ %p ] having size [ %d] of thread [ %p ] has address [ %p ]"
                         , static_cast<int>(firedEvent)
                         , this
                         , mWaitingList.getSize()

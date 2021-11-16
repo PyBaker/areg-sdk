@@ -9,7 +9,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/component/NEService.hpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform, NEService namespace contains
  *              collection of classes, structures and types defining
@@ -49,9 +49,9 @@
  * \brief       NEService namespace contains defined and fixed constants,
  *              structures, types and classes required to define Service
  *              Interface and interface data used by Proxy and Stub objects.
- * 
+ *
  * \details     In this namespace are defined range of request, response
- *              and attribute messages. Also data validation flags, error 
+ *              and attribute messages. Also data validation flags, error
  *              codes, request types, helper function and classes, as well
  *              as class of Service Interface data.
  *
@@ -66,7 +66,7 @@ namespace NEService
      *          Used when sending response service event
      *          and needs to define validation of execution.
      **/
-    typedef enum class E_ResultType : uint16_t
+    enum class eResultType  : uint16_t
     {
         /* not used */
           Undefined         =     0 /*0x0000*/  //!< undefined result. not used             Bits: 0000 0000 0000 0000
@@ -96,7 +96,7 @@ namespace NEService
         , ServiceInvalid    = 32897 /*0x8081*/  //!< service invalid (check cookie).        Bits: 1000 0000 1000 0001
         , ServiceRejected   = 32899 /*0x8083*/  //!< service rejected (unsupported).        Bits: 1000 0000 1000 0011
 
-    } eResultType;
+    };
     /**
      * \brief   Returns string value of NEService::eResultType type
      **/
@@ -106,7 +106,7 @@ namespace NEService
      * \brief   Data types
      *          Used getting data
      **/
-    typedef enum class E_DataStateType  : uint16_t
+    enum class eDataStateType   : uint16_t
     {
           DataIsUndefined       =     0 /*0x0000*/  //!< undefined type, not used
         , DataIsOK              = 16384 /*0x4000*/  //!< data valid
@@ -114,7 +114,7 @@ namespace NEService
         , DataIsUnavailable     = 16387 /*0x4003*/  //!< data is unavailable, no such data
         , DataUnexpectedError   = 16389 /*0x4005*/  //!< other errors
 
-    } eDataStateType;
+    };
     /**
      * \brief   Returns string value of NEService::eDataStateType type
      **/
@@ -124,7 +124,7 @@ namespace NEService
      * \brief   Type of request.
      *          Used sending request event by proxy
      **/
-    typedef enum class E_RequestType : uint16_t
+    enum class eRequestType : uint16_t
     {
           Unprocessed       =     0 /*0x0000*/  //!< request is unprocessed
         , StartNotify       =  8193 /*0x2001*/  //!< request start notify on attribute update
@@ -134,7 +134,7 @@ namespace NEService
         , ServiceConnection = 16387 /*0x4003*/  //!< request connection status update
         , ClientConnection  = 16389 /*0x4005*/  //!< request client connection status update
         , LoadComponent     = 16391 /*0x4007*/  //!< request load component
-    } eRequestType;
+    };
     /**
      * \brief   Returns string value of NEService::eRequestType type
      **/
@@ -146,7 +146,7 @@ namespace NEService
      *          used either in service request or in service response
      *          event objects
      **/
-    typedef enum class E_MessageDataType : uint16_t
+    enum class eMessageDataType : uint16_t
     {
           UndefinedDataType = 0x0000u   //!< data type is undefined
         , RequestDataType   = 0x1000u   //!< data type of request event
@@ -154,7 +154,7 @@ namespace NEService
         , AttributeDataType = 0x4000u   //!< data type of attribute event
         , ServiceDataType   = 0x8000u   //!< data type service call
 
-    } eMessageDataType;
+    };
     /**
      * \brief   Returns string value of NEService::eMessageDataType type
      **/
@@ -169,7 +169,7 @@ namespace NEService
      * \brief   NEService::eServiceConnection
      *          Service Connections. Used in service calls
      **/
-    typedef enum class E_ServiceConnection : uint16_t
+    enum class eServiceConnection   : uint16_t
     {
           ServiceConnectionUnknown  =    0  /*0x0000*/  //!< Connection is unknown.               Bit set: 0000 0000
         , ServiceConnected          =    1  /*0x0001*/  //!< Service Connected, ready to serve.   Bit set: 0000 0001
@@ -178,20 +178,24 @@ namespace NEService
         , ServiceRejected           =   48  /*0x0030*/  //!< Service Connection rejected.         Bit set: 0011 0000
         , ServiceFailed             =   80  /*0x0050*/  //!< Service Connection failed.           Bit set: 0101 0000
         , ServiceShutdown           =  144  /*0x0090*/  //!< Service shut down, no connection.    Bit set: 1001 0000
-    } eServiceConnection;
+    };
     /**
      * \brief   Returns string value of NEService::eDataType type
      **/
     inline const char* getString( NEService::eServiceConnection serviceConnection );
 
-    typedef enum class E_ServiceRequestType : uint16_t
+    /**
+     * \brief   NEService::eServiceRequestType
+     *          Service request types.
+     **/
+    enum class eServiceRequestType  : uint16_t
     {
           RegisterClient    = 0x10  //!< Client requests to register for service.     Bit set:    0001 0000
         , UnregisterClient  = 0x11  //!< Client requests to unregister for service.   Bit set:    0001 0001
         , RegisterStub      = 0x20  //!< Server requests to register for service.     Bit set:    0010 0000
         , UnregisterStub    = 0x21  //!< Server requests to unregister for service.   Bit set:    0010 0001
-    } eServiceRequestType;
-    
+    };
+
     /**
      * \brief   Returns string value of NEService::eServiceRequestType type
      **/
@@ -201,13 +205,13 @@ namespace NEService
      * \brief   NEService::eServiceType
      *          Service Type. Either local or Remote.
      **/
-    typedef enum class E_ServiceType : uint16_t
+    enum class eServiceType : uint16_t
     {
           ServiceInvalid    = 0x00  //!< Invalid Service      Bit set: 0000 0000
         , ServiceLocal      = 0x40  //!< Local Service.       Bit set: 0100 0000
         , ServicePublic     = 0x80  //!< External Service.    Bit set: 1000 0000
         , ServiceAny        = 0xC0  //!< Any service.         Bit set: 1100 0000
-    } eServiceType;
+    };
 
     /**
      * \brief   Returns string value of NEService::eServiceType type
@@ -229,14 +233,14 @@ namespace NEService
      * \brief   NEService::eCookie
      *          The list of reserved cookie values
      **/
-    typedef enum class E_Cookies : ITEM_ID
+    enum class eCookies: ITEM_ID
     {
           CookieInvalid     = 0     //!< Invalid cookie value
         , CookieLocal       = 1     //!< Valid cookie value of local services
         , CookieRouter      = 2     //!< Valid cookie value of Routing Service
         , CookieAny         = 255   //!< Any valid cookie
         , CookieFirstValid  = 256   //!< First valid cookie of any other remote service
-    } eCookies;
+    };
 
     /**
      * \brief   NEService::COOKIE_UNKNOWN
@@ -283,14 +287,14 @@ namespace NEService
      * \brief   NEService::eServiceCalls
      *          Specifies the service call type
      **/
-    typedef enum class E_ServiceCall  : uint16_t
+    enum class eServiceCalls    : uint16_t
     {
           ServiceCallNoFunction = static_cast<uint16_t>(eMessageDataType::UndefinedDataType) //!< No function call
         , ServiceCallRequest    = static_cast<uint16_t>(eMessageDataType::RequestDataType  ) //!< Call of service request function
         , ServiceCallResponse   = static_cast<uint16_t>(eMessageDataType::ResponseDataType ) //!< Call of service response function
         , ServiceCallAttribute  = static_cast<uint16_t>(eMessageDataType::AttributeDataType) //!< Call of service attribute update function
         , ServiceCallRegister   = static_cast<uint16_t>(eMessageDataType::ServiceDataType  ) //!< Call of service registration
-    } eServiceCalls;
+    };
 
     /**
      * \brief   Predefined range of function message IDs
@@ -361,7 +365,7 @@ namespace NEService
     /**
      * \brief   Predefined range of function calls
      **/
-    typedef enum class E_FuncIdRange  : uint32_t
+    enum class eFuncIdRange : uint32_t
     {
         // Reserved system calls.
 
@@ -371,7 +375,7 @@ namespace NEService
         , ComponentCleanup      = 0x00000100
 
         // The developer defined calls.
-        
+
         //!< The first ID or request call range. Requests should start from this ID.
         , RequestFirstId        = REQUEST_ID_FIRST
         //!< The last ID of request calls.
@@ -381,18 +385,18 @@ namespace NEService
         , ResponseFirstId       = RESPONSE_ID_FIRST
         //!< The last ID of request calls.
         , ResponseLastId        = RESPONSE_ID_LAST
-        
+
         //!< The first ID of Attribute update call range. Attribute updates should start from this ID
         , AttributeFirstId      = ATTRIBUTE_ID_FIRST
         , AttributeLastId       = ATTRIBUTE_ID_LAST
 
         // Reserved system calls.
 
-        //!< The service registratio call. Service calls should start from this ID.
+        //!< The service registration call. Service calls should start from this ID.
         , ServiceRequestRegister= SERVICE_ID_FIRST
         //!< Sent by client to Stub to get supported version information
         , ServiceRequestVersion
-        //!< Sent by Stub to clients as a reply to get service version and notifies interface implementated version
+        //!< Sent by Stub to clients as a reply to get service version and notifies interface implemented version
         , ServiceNotifyVersion
         //!< Sent by client or stub to request service manager connection.
         , ServiceRequestConnection
@@ -408,12 +412,12 @@ namespace NEService
         , ServiceRouterRegister
         //!< Called by service manager to routing service to query registration status of services.
         , ServiceRouterQuery
-        //!< Sent by Routing Service as a reply to register service and notifies the the registered service availability
+        //!< Sent by Routing Service as a reply to register service and notifies the registered service availability
         , ServiceRouterNotifyRegister
         //!< The last ID of service calls.
         , ServiceLastId         = SERVICE_ID_LAST  //!< Servicing call last ID
 
-    } eFuncIdRange;
+    };
 
     /**
      * \brief   Returns string value of NEService::eFuncIdRange type
@@ -465,12 +469,11 @@ namespace NEService
     //////////////////////////////////////////////////////////////////////////
     // StateArray class declaration
     //////////////////////////////////////////////////////////////////////////
-    using ImplStateArray    = TEListImpl<NEService::eDataStateType>;
-    using StateArrayBase    = TEFixedArray<NEService::eDataStateType, NEService::eDataStateType, ImplStateArray>;
+    using StateArrayBase    = TEFixedArray<NEService::eDataStateType, NEService::eDataStateType>;
     /**
      * \brief   StateArray class. Keeps data state information
      **/
-    class AREG_API StateArray : public StateArrayBase
+    class AREG_API StateArray : private StateArrayBase
     {
         friend class ParameterArray;
     //////////////////////////////////////////////////////////////////////////
@@ -511,6 +514,16 @@ namespace NEService
          **/
         StateArray & operator = ( StateArray && src) noexcept = default;
 
+        /**
+         * \brief   Returns data state value of specified index in the array.
+         **/
+        inline NEService::eDataStateType operator [ ] (int index) const;
+
+        /**
+         * \brief   Returns data state value by reference of specified index in the array.
+         **/
+        inline NEService::eDataStateType & operator [ ] (int index);
+
     //////////////////////////////////////////////////////////////////////////
     // Attributes and operations
     //////////////////////////////////////////////////////////////////////////
@@ -539,9 +552,16 @@ namespace NEService
          **/
         inline void setAllState(NEService::eDataStateType newState);
 
-    //////////////////////////////////////////////////////////////////////////
-    // Hidden methods
-    //////////////////////////////////////////////////////////////////////////
+        /**
+         * \brief   Returns the state value of specified entry.
+         * \param   whichIndex  The index of entry in array which state should return.
+         * \return  The state value of specified entry in the array.
+         **/
+        inline NEService::eDataStateType getState(int whichIndex) const;
+
+        //////////////////////////////////////////////////////////////////////////
+        // Hidden methods
+        //////////////////////////////////////////////////////////////////////////
     private:
 
         /**
@@ -560,7 +580,7 @@ namespace NEService
      *          interface required by Proxy object. Should be initialized
      *          for every service interface.
      **/
-    typedef struct AREG_API S_InterfaceData
+    struct AREG_API SInterfaceData
     {
         /**
          * \brief   The name of service (interface)
@@ -575,7 +595,7 @@ namespace NEService
         /**
          * \brief   The service type. Either local or remote
          **/
-        eServiceType        idServiceType;      // local or publis service type
+        eServiceType        idServiceType;      // local or public service type
 
         /**
          * \brief   Number of requests in service interface
@@ -608,8 +628,8 @@ namespace NEService
         const unsigned int* idAttributeList;
 
         /**
-         * \brief   Request to Response map. All requests are accessed by index 
-         *          and every request indexed is calculated by calculating 
+         * \brief   Request to Response map. All requests are accessed by index
+         *          and every request indexed is calculated by calculating
          *          ('request ID' - NEService::eFuncIdRange::RequestFirstId)
          *          Every request should have appropriate response value. If request does not
          *          have response, it should have value NEService::RESPONSE_ID_NONE
@@ -623,7 +643,7 @@ namespace NEService
          **/
         const unsigned int* idResponseParamCountMap;    // map of parameter count in every response. Must have same size as idResponseCount
 
-    } SInterfaceData;
+    };
 
     //////////////////////////////////////////////////////////////////////////
     // Empty service interface
@@ -738,7 +758,7 @@ namespace NEService
          *          and certain parameter. The parameter entry is calculated
          *          row = GET_RESP_INDEX('response ID').
          * \param   row     The index of response call. Should be GET_RESP_INDEX('response ID')
-         * \param   col     The index of parameter entry in response call. 
+         * \param   col     The index of parameter entry in response call.
          *                  First parameter has index zero
          * \return  The state of parameter in call.
          **/
@@ -748,7 +768,7 @@ namespace NEService
          * \brief   Sets state of parameter of certain response.
          * \param   row         The index of response entry, which can be calculated
          *                      by macro GET_RESP_INDEX('response ID')
-         * \param   col         The index of parameter in response call. 
+         * \param   col         The index of parameter in response call.
          *                      First parameter has index zero
          * \param   newValue    The state to set for parameter
          **/
@@ -847,7 +867,7 @@ namespace NEService
     // NEService::ProxyData class declaration
     //////////////////////////////////////////////////////////////////////////
     /**
-     * \brief   ProxyData class. 
+     * \brief   ProxyData class.
      *          Contains info of Data required by Proxy object
      **/
     class AREG_API ProxyData
@@ -883,7 +903,7 @@ namespace NEService
          *                      Can be either attribute or response range ID.
          *                      Otherwise it is ignored.
          * \param	newState	New state to set. If requested ID is response range,
-         *                      it will set state for all parameters of that response, 
+         *                      it will set state for all parameters of that response,
          *                      if any exist.
          **/
         void setDataState(unsigned int msgId, NEService::eDataStateType newState);
@@ -1021,6 +1041,18 @@ inline NEService::eMessageDataType NEService::getMessageDataType( unsigned int m
 //////////////////////////////////////////////////////////////////////////
 // class NEService::StateArray inline function implementation
 //////////////////////////////////////////////////////////////////////////
+inline NEService::eDataStateType NEService::StateArray::operator [ ] ( int index ) const
+{
+    ASSERT( isValidIndex( index ) );
+    return mValueList[index];
+}
+
+inline NEService::eDataStateType & NEService::StateArray::operator [ ] ( int index )
+{
+    ASSERT( isValidIndex( index ) );
+    return mValueList[index];
+}
+
 inline void NEService::StateArray::resetStates( void )
 {
     setAllState(NEService::eDataStateType::DataIsUnavailable);
@@ -1043,6 +1075,12 @@ inline void NEService::StateArray::setAllState(NEService::eDataStateType newStat
         mValueList[i] = newState;
 }
 
+inline NEService::eDataStateType NEService::StateArray::getState( int whichIndex ) const
+{
+    ASSERT(isValidIndex(whichIndex));
+    return mValueList[whichIndex];
+}
+
 //////////////////////////////////////////////////////////////////////////
 // class NEService::ParameterArray inline function implementation
 //////////////////////////////////////////////////////////////////////////
@@ -1061,13 +1099,13 @@ inline const NEService::StateArray& NEService::ParameterArray::operator [] ( int
 inline NEService::eDataStateType NEService::ParameterArray::getAt( int row, int col ) const
 {
     ASSERT(isValidParamIndex(row) && mParamList[row]->isValidIndex(col));
-    return mParamList[row]->getAt(col);
+    return mParamList[row]->getState(col);
 }
 
 inline void NEService::ParameterArray::setAt( int row, int col, NEService::eDataStateType newValue )
 {
     ASSERT(isValidParamIndex(row) && mParamList[row]->isValidIndex(col));
-    mParamList[row]->setAt(col, newValue);
+    mParamList[row]->setState(col, newValue);
 }
 
 inline bool NEService::ParameterArray::hasParameters( int whichRespIndex ) const
@@ -1196,7 +1234,7 @@ inline const char* NEService::getString( NEService::eRequestType resultType )
     case    NEService::eRequestType::StartNotify:
         return "NEService::eRequestType::StartNotify";
     case    NEService::eRequestType::StopNotify:
-        return "NEService::eRequestType::StopNotify";        
+        return "NEService::eRequestType::StopNotify";
     case    NEService::eRequestType::RemoveAllNotify:
         return "NEService::eRequestType::RemoveAllNotify";
     case    NEService::eRequestType::CallFunction:

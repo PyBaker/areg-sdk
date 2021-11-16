@@ -8,7 +8,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/component/private/NEService.cpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform, classes of NEService namespace.
  *
@@ -154,7 +154,7 @@ void NEService::ParameterArray::construct( const unsigned int * params, int coun
 unsigned int NEService::ParameterArray::countParamSpace( const unsigned int* params, int count )
 {
     unsigned int result = 0;
-    // space for size of class NEService::StateArray + 
+    // space for size of class NEService::StateArray +
     // space for size of NEService::eDataStateType multiplied on number of parameters.
     // If number of parameters is zero, do not reserve.
     for ( int i = 0; i < count; ++ i )
@@ -177,7 +177,7 @@ NEService::ProxyData::ProxyData( const NEService::SInterfaceData& ifData )
     , mAttrState    (static_cast<int>(ifData.idAttributeCount))
     , mParamState   (ifData)
 {
-    resetStates(); 
+    resetStates();
 }
 
 NEService::ProxyData::~ProxyData( void )
@@ -228,7 +228,7 @@ unsigned int NEService::ProxyData::getResponseId( unsigned int requestId ) const
 {
     int index = GET_REQ_INDEX(requestId);
     return  (
-                index >= 0 && index < static_cast<int>(mIfData.idRequestCount) ? 
+                index >= 0 && index < static_cast<int>(mIfData.idRequestCount) ?
                         static_cast<unsigned int>(mIfData.idRequestToResponseMap[index]) :
                         NEService::INVALID_MESSAGE_ID
             );
@@ -241,7 +241,7 @@ AREG_API NEService::SInterfaceData & NEService::getEmptyInterface(void)
     /**
      * \brief   System Service Interface data
      **/
-    static NEService::SInterfaceData _InterfaceData = 
+    static NEService::SInterfaceData _InterfaceData =
     {
           NEService::EmptyServiceName
         , NEService::EmptyServiceVersion

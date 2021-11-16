@@ -207,9 +207,9 @@ public:
      *          In case of some waitable such as Mutex, this call takes the ownership. in case of Synchronization Events
      *          this may reset signaled state or leave in signaled state, depending on Synchronization Event types.
      *          For more details see the description of each waitable object.
-     * \param   listWaitables   The list of waitables to check the signaled state. There should be no more than 
+     * \param   listWaitables   The list of waitables to check the signaled state. There should be no more than
      *                          NECommon::MAXIMUM_WAITING_OBJECTS entries in the list.
-     * \param   count           The number of waitables in the list. There should be no more than 
+     * \param   count           The number of waitables in the list. There should be no more than
      *                          NECommon::MAXIMUM_WAITING_OBJECTS entries.
      * \param   waitAll         If true, the call is locks the thread until all waitables in the list are signaled.
      *                          If false, any waitable in signaled state unlocks the thread.
@@ -221,7 +221,7 @@ public:
      *              - NESynchTypesIX::SynchObjectAll if 'waitAll' flag is true and all waitables are signaled.
      *              - NESynchTypesIX::SynchObjectTimeout if waiting timeout is expired;
      *              - NESynchTypesIX::SynchWaitInterrupted if waiting was interrupted by such event like timer;
-     *              - NESynchTypesIX::SynchObject0Error + N if error happened, where 'N' is the indes of failed waitalbe object. For example, the waitable is invalidated.
+     *              - NESynchTypesIX::SynchObject0Error + N if error happened, where 'N' is the index of failed waitable object. For example, the waitable is invalidated.
      **/
     static int waitForMultipleObjects( IEWaitableBaseIX ** listWaitables, int count, bool waitAll = false, unsigned int msTimeout = NECommon::WAIT_INFINITE);
 
