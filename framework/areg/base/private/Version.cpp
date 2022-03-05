@@ -20,6 +20,9 @@
 #include "areg/base/NEUtilities.hpp"
 #include "areg/base/NECommon.hpp"
 
+#include <regex>
+#include <sstream>
+
 //////////////////////////////////////////////////////////////////////////
 // Version class implementation
 //////////////////////////////////////////////////////////////////////////
@@ -87,15 +90,17 @@ Version & Version::convFromString( const char * version )
     mMinor  = 0;
     mPatch  = 0;
 
-    String temp(version), major, minor, patch;
-    NEString::CharPos pos = NEString::START_POS;
-    pos = temp.substring( major, NECommon::OBJECT_SEPARATOR, pos );
-    pos = temp.substring( minor, NECommon::OBJECT_SEPARATOR, pos );
-    pos = temp.substring( patch, NECommon::OBJECT_SEPARATOR, pos );
+    std::string temp = version;
 
-    mMajor  = major.convToUInt32();;
-    mMinor  = minor.convToUInt32();
-    mPatch  = (mMajor != 0) && (mMinor != 0) ? patch.convToUInt32() : 0;
+    std::regex version_regex("^(\\d+)\\.(\\d+)\\.(\\d+)$");
+    std::smatch matches;
+
+    if (std::regex_search(temp, matches, version_regex))
+    {
+        mMajor = std::stoi(matches[1]);
+        mMinor = std::stoi(matches[2]);
+        mPatch  = (mMajor != 0) && (mMinor != 0) ? std::stoi(matches[3]) : 0;
+    }
 
     return (*this);
 }
@@ -146,10 +151,11 @@ bool Version::operator > ( const Version & version ) const
             );
 }
 
-String Version::convToString( void ) const
+std::string Version::convToString() const
 {
-    String result;
-    return result.formatString("%d%c%d%c%d", mMajor, NECommon::OBJECT_SEPARATOR, mMinor, NECommon::OBJECT_SEPARATOR, mPatch);
+    std::stringstream ss;
+    ss << mMajor << NECommon::OBJECT_SEPARATOR << mMinor << NECommon::OBJECT_SEPARATOR << mPatch;
+    return ss.str();
 }
 
 //////////////////////////////////////////////////////////////////////////
