@@ -27,8 +27,8 @@ namespace NECommon
     using ElemPos   = signed int;   //!< The type of character position in the string.
 
     using ElemCount = signed int;   //!< The type of characters count in the string.
-    
-    /**
+
+                                    /**
      * \brief   Overlapping of elements in ring buffer or stack means the cases
      *          when buffer or stack is full, i.e. start and end positions match
      *          and number of elements in buffer or stack is equal to stack
@@ -89,17 +89,17 @@ namespace NECommon
      * \brief   The first valid index in the buffer.
      **/
     constexpr ElemPos       FIRST_INDEX             { static_cast<ElemPos>(NECommon::eIndex::FirtIndex) };
-    
+
     /**
      * \brief   The last valid position in the string.
      **/
     constexpr ElemPos       LAST_INDEX              { static_cast<ElemPos>(NECommon::eIndex::LastIndex) };
-    
+
     /**
      * \brief   The value of all characters in the string
      **/
     constexpr ElemCount     COUNT_ALL               { static_cast<ElemCount>(LAST_INDEX) };
-    
+
     /**
      * \brief   The value of default size.
      **/
@@ -112,7 +112,7 @@ namespace NECommon
 
     /**
      * \brief   NECommon::MAXIMUM_WAITING_OBJECTS
-     *          The maximum number of synchronization objects that is able to lock. 
+     *          The maximum number of synchronization objects that is able to lock.
      **/
     constexpr int           MAXIMUM_WAITING_OBJECTS { 64 };
 
@@ -288,4 +288,14 @@ namespace NECommon
      *          Object separator such as channel or version numbers.
      **/
     constexpr char                  OBJECT_SEPARATOR            { '.' };
+    /**
+     * \brief   NECommon::EmptyStrA
+     *          An empty ASCII string.
+     **/
+    constexpr std::string_view      EMPTY_STRA                  { "" };
+    /**
+     * \brief   NECommon::EmptyStrA
+     *          An empty Wide string.
+     **/
+    constexpr std::wstring_view     EMPTY_STRW                  { L"" };
 }

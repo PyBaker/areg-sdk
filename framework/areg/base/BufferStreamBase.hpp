@@ -9,7 +9,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/base/BufferStreamBase.hpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform base class of streaming buffer.
  *
@@ -38,7 +38,7 @@ class IECursorPosition;
  *              This class is pure virtual and cannot be instantiated directly.
  *              The streaming buffer is used to transfer data between threads
  *              and processes. Depending on child class behavior, it either appends
- *              data starting from current writing position, or writes data from the 
+ *              data starting from current writing position, or writes data from the
  *              beginning of buffer.
  *
  **/
@@ -50,7 +50,7 @@ class AREG_API BufferStreamBase : public    IEByteBuffer
 //////////////////////////////////////////////////////////////////////////
 protected:
     /**
-     * \brief	Requires intances of byte-buffer, write and read position objects.
+     * \brief	Requires instances of byte-buffer, write and read position objects.
      * \param	readPosition	Read position object.
      * \param	writePosition	Write position object.
      **/
@@ -91,10 +91,10 @@ public:
 /************************************************************************/
     /**
      * \brief	Write data to output stream object from given buffer
-     *          and returns the size of written data. 
-     *          Implement function to provide writing functionality 
+     *          and returns the size of written data.
+     *          Implement function to provide writing functionality
      *          of output stream object.
-     * \param	buffer	The pointer to buffer to read data and 
+     * \param	buffer	The pointer to buffer to read data and
      *                  copy to output stream object
      * \param	size	The size in bytes of data buffer
      * \return	Returns the size in bytes of written data
@@ -103,7 +103,7 @@ public:
 
     /**
      * \brief	Writes Binary data from Byte Buffer object to Output Stream object
-     *          and returns the size of written data. Overwrite this method if need 
+     *          and returns the size of written data. Overwrite this method if need
      *          to change behavior of streaming buffer.
      * \param	buffer	The instance of Byte Buffer object containing data to stream to Output Stream.
      * \return	Returns the size in bytes of written data
@@ -116,7 +116,8 @@ public:
      * \param   asciiString     The buffer of String containing data to stream to Output Stream.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int write( const String & asciiString ) override;
+    virtual unsigned int write( const std::string & asciiString ) override;
+    virtual unsigned int write( const std::string_view & ascii ) override;
 
     /**
      * \brief   Writes string data from given wide-char String object to output stream object.
@@ -124,7 +125,8 @@ public:
      * \param   wideString  The buffer of String containing data to stream to Output Stream.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int write( const WideString & wideString ) override;
+    virtual unsigned int write( const std::wstring & wideString ) override;
+    virtual unsigned int write( const std::wstring_view & wideString ) override;
 
 /************************************************************************/
 // IEInStream interface overrides
@@ -156,7 +158,7 @@ public:
      * \param   asciiString     The buffer of ASCII String to stream data from Input Stream object.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( String & asciiString ) const override;
+    virtual unsigned int read( std::string & asciiString ) const override;
 
     /**
      * \brief   Reads string data from Input Stream object and copies into given Wide String.
@@ -164,15 +166,15 @@ public:
      * \param   wideString      The buffer of Wide String to stream data from Input Stream object.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( WideString & wideString ) const override;
+    virtual unsigned int read( std::wstring & wideString ) const override;
 
 /************************************************************************/
 // IEByteBuffer overrides
 /************************************************************************/
     /**
-     * \brief	Reserves space for byte buffer structure, if needed, 
+     * \brief	Reserves space for byte buffer structure, if needed,
      *          copies existing data and the size of buffer available to write.
-     *          1.  If requested reserved space is more than the length of data buffer, 
+     *          1.  If requested reserved space is more than the length of data buffer,
      *              the size of data buffer is increased.
      *          2.  If total data buffer spaces is more than IEByteBuffer::MAX_BUF_LENGTH,
      *              reserves the maximum IEByteBuffer::MAX_BUF_LENGTH.
@@ -182,7 +184,7 @@ public:
      *              to write data. Because if data is shared between different instances
      *              of byte-buffer, the size of buffer should not be changed.
      *
-     * \param	size	Size in bytes to reserve
+     * \param	size	The size in bytes to reserve
      * \param	copy    If true and the existing buffer is valid, it will copy data
      * \return	Returns the size available to use (i.e. remaining space).
      **/
@@ -193,7 +195,7 @@ protected:
 // IEIOStream interface overrides
 /************************************************************************/
     /**
-     * \brief	Returns size in bytes of available data that can be read, 
+     * \brief	Returns size in bytes of available data that can be read,
      *          i.e. remaining readable size.
      *          No necessarily that this size is equal to size of streamable buffer.
      *          For example, if the size of buffer is 'n' and 'x' bytes of data was
@@ -202,7 +204,7 @@ protected:
     virtual unsigned int getSizeReadable( void ) const override;
 
     /**
-     * \brief	Returns size in bytes of available space that can be written, 
+     * \brief	Returns size in bytes of available space that can be written,
      *          i.e. remaining writable size.
      *          No necessarily that this size is equal to size of streamable buffer.
      *          For example, if the size of buffer is 'n' and 'x' bytes of data was
@@ -227,7 +229,7 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 
     /**
-     * \brief	Writes data to buffer and returns the size of written data. 
+     * \brief	Writes data to buffer and returns the size of written data.
      * \param	buffer	The pointer to data source buffer
      * \param	size	The size in bytes of data buffer
      * \return	Returns the size in bytes of written data

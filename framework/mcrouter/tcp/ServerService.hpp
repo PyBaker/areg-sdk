@@ -32,9 +32,10 @@
 #include "mcrouter/tcp/private/ServiceRegistry.hpp"
 #include "areg/ipc/NERemoteService.hpp"
 #include "areg/base/SynchObjects.hpp"
-#include "areg/base/TEArrayList.hpp"
 #include "areg/base/Containers.hpp"
 #include "areg/component/Timer.hpp"
+
+#include <vector>
 
 /************************************************************************
  * Dependencies
@@ -272,7 +273,7 @@ protected:
      * \param   out_listStubs   On output this will contain list of remote stub addresses connected with specified cookie value.
      * \param   out_lisProxies  On output this will contain list of remote proxy addresses connected with specified cookie value.
      **/
-    virtual void getServiceList( ITEM_ID cookie, TEArrayList<StubAddress, const StubAddress &> & OUT out_listStubs, TEArrayList<ProxyAddress, const ProxyAddress &> & OUT out_lisProxies ) const override;
+    virtual void getServiceList( ITEM_ID cookie, std::vector<StubAddress> & OUT out_listStubs, std::vector<ProxyAddress> & OUT out_lisProxies ) const override;
 
     /**
      * \brief   Registers remote stub in the current process.

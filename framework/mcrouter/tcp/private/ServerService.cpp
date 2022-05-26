@@ -10,6 +10,8 @@
 #include "areg/ipc/ConnectionConfiguration.hpp"
 #include "areg/trace/GETrace.h"
 
+#include <vector>
+
 DEF_TRACE_SCOPE(mcrouter_tcp_private_ServerService_startRemoteServicing);
 DEF_TRACE_SCOPE(mcrouter_tcp_private_ServerService_stopRemoteServicing);
 DEF_TRACE_SCOPE(mcrouter_tcp_private_ServerService_registerService);
@@ -112,7 +114,7 @@ void ServerService::stopRemoteServicing(void)
         ServerServiceEvent::sendEvent( ServerServiceEventData(ServerServiceEventData::eServerServiceCommands::CMD_StopService)
                                      , static_cast<IEServerServiceEventConsumer &>(self())
                                      , static_cast<DispatcherThread &>(self()) );
-        
+
         DispatcherThread::triggerExitEvent();
         completionWait(NECommon::WAIT_INFINITE);
         destroyThread( NECommon::DO_NOT_WAIT );
@@ -299,8 +301,8 @@ void ServerService::processEvent(const ServerServiceEventData & data)
                     msgReceived >> cookie;
                     mServerConnection.closeConnection(cookie);
 
-                    TEArrayList<StubAddress, const StubAddress &>   listStubs;
-                    TEArrayList<ProxyAddress, const ProxyAddress &> listProxies;
+                    std::vector<StubAddress>   listStubs;
+                    std::vector<ProxyAddress> listProxies;
                     mServiceRegistry.getServiceSources(cookie, listStubs, listProxies);
 
                     TRACE_DBG("Routing service received disconnect message from cookie [ %u ], [ %d ] stubs and [ %d ] proxies are going to be disconnected"
@@ -344,7 +346,7 @@ void ServerService::processEvent(const ServerServiceEventData & data)
                                , static_cast<uint32_t>(msgId)
                                , msgReceived.getTarget()
                                , source);
-                    
+
                     if ( msgReceived.getTarget() != NEService::TARGET_UNKNOWN )
                     {
                         SendMessageEvent::sendEvent( SendMessageEventData(msgReceived), static_cast<IESendMessageEventConsumer &>(mThreadSend), static_cast<DispatcherThread &>(mThreadSend));
@@ -456,8 +458,8 @@ void ServerService::stopConnection(void)
     mThreadReceive.triggerExitEvent();
     mThreadReceive.destroyThread( NECommon::DO_NOT_WAIT );
 
-    TEArrayList<StubAddress, const StubAddress &> stubList;
-    TEArrayList<ProxyAddress, const ProxyAddress &> proxyList;
+    std::vector<StubAddress> stubList;
+    std::vector<ProxyAddress> proxyList;
     getServiceList(NEService::COOKIE_ANY, stubList, proxyList);
 
     for ( int i = 0; i < stubList.getSize(); ++ i )
@@ -476,7 +478,7 @@ void ServerService::stopConnection(void)
     mServerConnection.closeSocket();
 }
 
-void ServerService::getServiceList(ITEM_ID cookie, TEArrayList<StubAddress, const StubAddress &> & out_listStubs, TEArrayList<ProxyAddress, const ProxyAddress &> & out_lisProxies) const
+void ServerService::getServiceList(ITEM_ID cookie, std::vector<StubAddress> & out_listStubs, std::vector<ProxyAddress> & out_lisProxies) const
 {
     mServiceRegistry.getServiceList(cookie, out_listStubs, out_lisProxies);
 }
@@ -496,8 +498,8 @@ void ServerService::registerRemoteStub(const StubAddress & stub)
             TRACE_DBG("Stub [ %s ] is connected, sending notification messages to [ %d ] waiting proxies"
                         , StubAddress::convAddressToPath(stubService.getServiceAddress()).getString()
                         , listProxies.getSize());
-            
-            TEArrayList<ITEM_ID> sendList;
+
+            std::vector<ITEM_ID> sendList;
 
             for ( LISTPOS pos = listProxies.firstPosition(); pos != nullptr; pos = listProxies.nextPosition(pos) )
             {
@@ -575,7 +577,7 @@ void ServerService::registerRemoteProxy(const ProxyAddress & proxy)
         {
             RemoteMessage msgRegisterProxy = NEConnection::createServiceClientRegisteredNotification(proxy, addrStub.getSource());
             SendMessageEvent::sendEvent( SendMessageEventData(msgRegisterProxy), static_cast<IESendMessageEventConsumer &>(mThreadSend), static_cast<DispatcherThread &>(mThreadSend));
-            
+
             TRACE_DBG("Send to stub [ %s ] the proxy [ %s ] registration notification. Send message [ %s ] of id [ 0x%X ] from source [ %u ] to target [ %u ]"
                         , addrStub.convToString().getString()
                         , proxy.convToString().getString()
@@ -586,7 +588,7 @@ void ServerService::registerRemoteProxy(const ProxyAddress & proxy)
 
             RemoteMessage msgRegisterStub  = NEConnection::createServiceRegisteredNotification(addrStub, proxy.getSource());
             SendMessageEvent::sendEvent( SendMessageEventData(msgRegisterStub), static_cast<IESendMessageEventConsumer &>(mThreadSend), static_cast<DispatcherThread &>(mThreadSend));
-            
+
             TRACE_DBG("Send to proxy [ %s ] the stub [ %s ] registration notification. Send message [ %s ] of id [ 0x%X ] from source [ %u ] to target [ %u ]"
                         , proxy.convToString().getString()
                         , addrStub.convToString().getString()
@@ -622,7 +624,7 @@ void ServerService::unregisterRemoteStub(const StubAddress & stub, ITEM_ID cooki
 
         TRACE_DBG("Filter sources [ %u ] of proxy list", static_cast<unsigned int>(cookie));
 
-        TEArrayList<ITEM_ID> sendList;
+        std::vector<ITEM_ID> sendList;
         for ( LISTPOS pos = listProxies.firstPosition(); pos != nullptr; pos = listProxies.nextPosition(pos) )
         {
             const ServiceProxy & proxyService = listProxies.getAt(pos);
@@ -671,7 +673,7 @@ void ServerService::unregisterRemoteProxy(const ProxyAddress & proxy, ITEM_ID co
     RemoteMessage msgRegisterProxy;
     ServiceProxy svcProxy;
     const ServiceStub * svcStub     = nullptr;
-    
+
     if (proxy.getSource() == cookie)
     {
         svcStub = &mServiceRegistry.unregisterServiceProxy(proxy, svcProxy);
@@ -717,7 +719,7 @@ void ServerService::remoteServiceConnectionLost(const Channel & /* channel */)
 void ServerService::failedSendMessage(const RemoteMessage & msgFailed)
 {
     TRACE_SCOPE(mcrouter_tcp_private_ServerService_failedSendMessage);
-    
+
     ITEM_ID cookie = msgFailed.getTarget();
     SocketAccepted client = mServerConnection.getClientByCookie( cookie );
     TRACE_WARN("Failed to send message to [ %s ] client [ %d ], probably the connection is lost, closing connection"

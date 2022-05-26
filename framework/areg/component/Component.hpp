@@ -127,7 +127,7 @@ public:
      * \return	If found, returns pointer to component object.
      *          Otherwise returns nullptr.
      **/
-    static Component * findComponentByName(const char * roleName);
+    static Component * findComponentByName(const std::string & roleName);
 
     /**
      * \brief	Find and return component by specified component number
@@ -141,7 +141,7 @@ public:
      * \param	roleName	The role name of component to look up
      * \return	Returns true ff found entry in registries. Otherwise returns false.
      **/
-    static bool existComponent(const char * roleName);
+    static bool existComponent(const std::string & roleName);
 
     /**
      * \brief	Find component in registries by given component address.
@@ -163,7 +163,7 @@ public:
      * \param	roleName	    Role Name of component, which should be
      *                          unique within one process.
      **/
-    Component( ComponentThread & masterThread, const char * roleName );
+    Component( ComponentThread & masterThread, const std::string & roleName );
     /**
      * \brief   MUST be instantiated in Component Thread!!!
      **/
@@ -173,7 +173,7 @@ public:
      * \param	roleName	    Role Name of component, which should be
      *                          unique within one process.
      **/
-    explicit Component( const char * roleName );
+    explicit Component( const std::string & roleName );
 
     /**
      * \brief   Destructor.
@@ -188,7 +188,7 @@ public:
 // Component overrides
 /************************************************************************/
     /**
-     * \brief	This function is triggered by component thread when it 
+     * \brief	This function is triggered by component thread when it
      *          requires component to start up. Set listeners and make
      *          initialization in this function call.
      * \param	comThread	The component thread, which triggered startup command
@@ -197,7 +197,7 @@ public:
 
     /**
      * \brief	This function is triggered by component thread when it
-     *          requires component to shut down. Remove listeners and 
+     *          requires component to shut down. Remove listeners and
      *          make cleanups in this function call.
      * \param	comThread	The component thread, which triggered shutdown command.
      **/
@@ -212,7 +212,7 @@ public:
     virtual void notifyComponentShutdown( ComponentThread & comThread );
 
     /**
-     * \brief   Waits until component completes job. 
+     * \brief   Waits until component completes job.
      *          The component is completed its job if all worker threads are completed.
      *          No action will be performed if component has no registered worker thread.
      * \param   waitTimeout     The timeout to wait for completion for every worker thread
@@ -228,7 +228,7 @@ public:
      * \param   workerThreadName    The name of worker thread, which consumer should return
      * \return  Return valid pointer if worker thread has assigned consumer.
      **/
-    virtual IEWorkerThreadConsumer * workerThreadConsumer( const char* consumerName, const char* workerThreadName );
+    virtual IEWorkerThreadConsumer * workerThreadConsumer( const std::string & consumerName, const std::string & workerThreadName );
 
 /************************************************************************/
 // Component operations
@@ -236,20 +236,20 @@ public:
 
     /**
      * \brief	Creates and run Worker thread by given name
-     * \param	threadName	    Worker thread name to created. 
+     * \param	threadName	    Worker thread name to created.
      *                          Should be unique within system.
      * \param   consumer        Worker Thread consumer object, which
      *                          start and stop functions will be triggered.
      * \param   masterThread    The component thread, which owns worker thread,
      * \return	Pointer to created worker thread object.
      **/
-    WorkerThread * createWorkerThread( const char * threadName, IEWorkerThreadConsumer & consumer, ComponentThread & masterThread );
+    WorkerThread * createWorkerThread( const std::string & threadName, IEWorkerThreadConsumer & consumer, ComponentThread & masterThread );
 
     /**
      * \brief	Stops and deletes worker thread by given name
      * \param	threadName	Worker thread name to stop and delete.
      **/
-    void deleteWorkerThread( const char* threadName );
+    void deleteWorkerThread( const std::string & threadName );
 
     /**
      * \brief	Registers Stub / Server object of component
@@ -263,7 +263,7 @@ public:
      * \param	serviceName	The service name of Stub / Server object.
      * \return	If found, returns pointer to registered server object.
      **/
-    StubBase * findServerByName( const char* serviceName );
+    StubBase * findServerByName( const std::string & serviceName );
 
     /**
      * \brief	Finds event dispatcher consumer of specific runtime class ID object.

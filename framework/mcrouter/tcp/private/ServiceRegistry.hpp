@@ -21,7 +21,8 @@
 #include "areg/base/TEHashMap.hpp"
 #include "mcrouter/tcp/private/ServiceStub.hpp"
 #include "mcrouter/tcp/private/ListServiceProxies.hpp"
-#include "areg/base/TEArrayList.hpp"
+
+#include <vector>
 
 //////////////////////////////////////////////////////////////////////////
 // ServiceRegistry class declaration
@@ -185,7 +186,7 @@ public:
      * \param   out_listStubs   On output this will contain list of remote stub addresses connected with specified cookie value.
      * \param   out_lisProxies  On output this will contain list of remote proxy addresses connected with specified cookie value.
      **/
-    void getServiceList( ITEM_ID cookie, TEArrayList<StubAddress, const StubAddress &> & OUT out_listStubs, TEArrayList<ProxyAddress, const ProxyAddress &> & OUT out_lisProxies ) const;
+    void getServiceList( ITEM_ID cookie, std::vector<StubAddress> & OUT out_listStubs, std::vector<ProxyAddress> & OUT out_lisProxies ) const;
 
     /**
      * \brief   Call to get list of registered remote stub and proxy services of specified cookie source.
@@ -194,7 +195,7 @@ public:
      * \param   stubSource      On output the list contains stub address objects that have sources of specified cookie.
      * \param   proxySources    On output the list contains proxy address objects that have sources of specified cookie.
      **/
-    void getServiceSources( ITEM_ID cookie, TEArrayList<StubAddress, const StubAddress &> & OUT stubSource, TEArrayList<ProxyAddress, const ProxyAddress &> & OUT proxySources);
+    void getServiceSources( ITEM_ID cookie, std::vector<StubAddress> & OUT stubSource, std::vector<ProxyAddress> & OUT proxySources);
 
     /**
      * \brief   Call to disconnect proxy service specified by proxy address.

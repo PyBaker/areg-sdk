@@ -36,9 +36,9 @@ inline PatientService & PatientService::self( void )
     return (*this);
 }
 
-IEWorkerThreadConsumer * PatientService::workerThreadConsumer(const char* consumerName, const char* workerThreadName)
+IEWorkerThreadConsumer * PatientService::workerThreadConsumer(const std::string & consumerName, const std::string & workerThreadName)
 {
-    if ( NEString::compareFast<char, char>(mWorkerConsumer.getConsumerName().getString(), consumerName) == 0 )
+    if ( mWorkerConsumer.getConsumerName() == consumerName )
     {
         return &mWorkerConsumer;
     }

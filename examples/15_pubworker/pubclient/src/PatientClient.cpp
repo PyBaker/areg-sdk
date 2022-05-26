@@ -35,9 +35,9 @@ PatientClient & PatientClient::self(void)
     return (*this);
 }
 
-IEWorkerThreadConsumer * PatientClient::workerThreadConsumer(const char* consumerName, const char* workerThreadName)
+IEWorkerThreadConsumer * PatientClient::workerThreadConsumer(const std::string & consumerName, const std::string & workerThreadName)
 {
-    if ( NEString::compareFast<char, char>(mHwWorker.getConsumerName().getString(), consumerName) == 0)
+    if ( mHwWorker.getConsumerName() == consumerName)
     {
         return &mHwWorker;
     }

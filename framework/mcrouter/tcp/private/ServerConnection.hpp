@@ -25,7 +25,8 @@
 #include "areg/base/SocketServer.hpp"
 #include "areg/base/SocketAccepted.hpp"
 #include "areg/base/TEHashMap.hpp"
-#include "areg/base/TEArrayList.hpp"
+
+#include <vector>
 
 //////////////////////////////////////////////////////////////////////////
 // ServerConnection class declaration.

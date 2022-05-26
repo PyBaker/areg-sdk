@@ -72,7 +72,7 @@ public:
      *          Is required if component contains few worker threads
      *          and needs few consumers for every single worker thread.
      **/
-    inline const String & getConsumerName( void ) const;
+    inline const std::string & getConsumerName( void ) const;
 
     /**
      * \brief   Compares passed name with the name of consumer
@@ -114,7 +114,7 @@ private:
     /**
      * \brief   The name of consumer. Is a fixed name and cannot be changed
      **/
-    const String    mConsumerName;
+    const std::string   mConsumerName;
 
 //////////////////////////////////////////////////////////////////////////
 // Forbidden calls
@@ -127,7 +127,7 @@ private:
 //////////////////////////////////////////////////////////////////////////
 // IEWorkerThreadConsumer class inline function implementation
 //////////////////////////////////////////////////////////////////////////
-inline const String & IEWorkerThreadConsumer::getConsumerName( void ) const
+inline const std::string & IEWorkerThreadConsumer::getConsumerName( void ) const
 {
     return mConsumerName;
 }

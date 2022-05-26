@@ -9,7 +9,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/base/NEUtilities.hpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform, Utilities
  *              Helper functions and constants.
@@ -21,6 +21,7 @@
 #include "areg/base/GEGlobal.h"
 #include "areg/base/NEMath.hpp"
 
+#include <string>
 #include <string_view>
 
 /************************************************************************
@@ -116,12 +117,12 @@ namespace   NEUtilities
 /************************************************************************/
 // NEUtilities namespace utility types
 /************************************************************************/
-    
+
     /**
      * \brief   NEUtilities::sSystemTime
      *          The structure defines date-time data used in system time
      **/
-    typedef struct S_SystemTime
+    struct sSystemTime
     {
         unsigned short  stYear;         //!< The year in the time
         unsigned short  stMonth;        //!< The month in the time, which starts from 1 (January) until 12 (December)
@@ -132,17 +133,17 @@ namespace   NEUtilities
         unsigned short  stSecond;       //!< The second in the time, which starts from 0
         unsigned short  stMillisecs;    //!< The millisecond in the time, which starts from 0
         unsigned short  stMicrosecs;    //!< The microseconds in the time, which starts from 0
-    } sSystemTime;
+    };
 
     /**
      * \brief   NEUtilities::sFileTime
      *          Specifies file time type and format.
      **/
-    typedef struct S_FileTime
+    struct sFileTime
     {
         unsigned long   ftLowDateTime;  //!< Low part of date-time.
         unsigned long   ftHighDateTime; //!< High part of date-time.
-    } sFileTime;
+    };
 
     /**
      * \brief   Returns current time. On output 'out_sysTime' system time contains the date-time data.
@@ -213,7 +214,7 @@ namespace   NEUtilities
      * \brief   Compare 2 system-time data structures and returns result indicating equality of data.
      * \param   lhs     Left-Hand Operand to compare
      * \param   rhs     Right-Hand Operand to compare
-     * \return  Returns one of possible results: 
+     * \return  Returns one of possible results:
      *              - NEMath::Smaller if Left-Hand Operand 'lhs' is smaller than Right-Hand Operand 'rhs'
      *              - NEMath::Equal if both operands are equal
      *              - NEMath::Bigger  if Left-Hand Operand 'lhs' is greater than Right-Hand Operand 'rhs'
@@ -224,7 +225,7 @@ namespace   NEUtilities
      * \brief   Compare 2 file-time data structures and returns result indicating equality of data.
      * \param   lhs     Left-Hand Operand to compare
      * \param   rhs     Right-Hand Operand to compare
-     * \return  Returns one of possible results: 
+     * \return  Returns one of possible results:
      *              - NEMath::Smaller if Left-Hand Operand 'lhs' is smaller than Right-Hand Operand 'rhs'
      *              - NEMath::Equal if both operands are equal
      *              - NEMath::Bigger  if Left-Hand Operand 'lhs' is greater than Right-Hand Operand 'rhs'
@@ -236,7 +237,7 @@ namespace   NEUtilities
      *          are microseconds passed since 1 January 1970.
      * \param   lhs     Left-Hand Operand to compare
      * \param   rhs     Right-Hand Operand to compare
-     * \return  Returns one of possible results: 
+     * \return  Returns one of possible results:
      *              - NEMath::Smaller if Left-Hand Operand 'lhs' is smaller than Right-Hand Operand 'rhs'
      *              - NEMath::Equal if both operands are equal
      *              - NEMath::Bigger  if Left-Hand Operand 'lhs' is greater than Right-Hand Operand 'rhs'
@@ -295,10 +296,10 @@ namespace   NEUtilities
      * \param   itemName        The name of component item.
      * \return  Returns created new string containing componentName and itemName separated by COMPONENT_ITEM_SEPARATOR.
      **/
-    AREG_API String createComponentItemName(const char * componentName, const char* itemName);
+    AREG_API std::string createComponentItemName( const std::string & componentName, const std::string & itemName);
 
     /**
-     * \brief   This function generates and returns name 
+     * \brief   This function generates and returns name
      *          using timestamp value in nanoseconds in the name.
      *          If passed prefix is nullptr, it will use predefined
      *          NEUtilities::DEFAULT_GENERATED_NAME constant as a
@@ -313,32 +314,7 @@ namespace   NEUtilities
      *                  a prefix for name.
      * \return  Returns system generated unique name.
      **/
-    AREG_API String generateName( const char * prefix );
-
-    /**
-     * \brief   This function generates and returns name 
-     *          using timestamp value in nanoseconds in the name.
-     *          If passed prefix is nullptr, it will use predefined
-     *          NEUtilities::DEFAULT_GENERATED_NAME constant as a
-     *          prefix for name. Before calling this function,
-     *          the output buffer should be allocated and the length
-     *          of buffer should be big enough to contain prefix
-     *          and the timestamp. The timestamp requires at least
-     *          34 characters. Generated output name is in 
-     *          format <prefix>:{nn:nn:nn:nn:nn:nn:nn:nn})
-     * \param   prefix      The prefix to add in generated name.
-     *                      If this value is nullptr it will use
-     *                      NEUtilities::DEFAULT_GENERATED_NAME as
-     *                      a prefix for name.
-     * \param   out_buffer  The output buffer to fill generated name.
-     *                      The length of buffer should be big enough
-     *                      to contain prefix and prefix.
-     * \param   length      The length of buffer to set name.
-     * \param   specChar    Special character used in generated name.
-     * \return  Returns the content of 'out_buffer'. If 'out_buffer' is invalid, returns nullptr.
-     **/
-    AREG_API const char * generateName( const char * prefix, char * OUT out_buffer, int length);
-    AREG_API const char * generateName( const char * prefix, char * OUT out_buffer, int length, const char * specChar);
+    AREG_API std::string generateName( const std::string & prefix );
 
 /************************************************************************/
 // NEUtilities namespace utility functions, generate unique ID

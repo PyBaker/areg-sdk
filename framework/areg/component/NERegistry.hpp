@@ -9,7 +9,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/component/NERegistry.hpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform, collection of Service Registry
  *              classes to initialize and load application objects.
@@ -20,10 +20,13 @@
  ************************************************************************/
 #include "areg/base/GEGlobal.h"
 #include "areg/base/Version.hpp"
-#include "areg/base/TEArrayList.hpp"
 #include "areg/base/TELinkedList.hpp"
 #include "areg/base/String.hpp"
 #include "areg/base/NEMemory.hpp"
+
+#include <vector>
+#include <string>
+#include <string_view>
 
 /************************************************************************
  * Declared classes
@@ -95,18 +98,158 @@ typedef void            (*FuncDeleteComponent)  (Component & /*componentItem*/, 
  *              dependencies. These is used when defining Model object
  *              and used to start initialization process when Model
  *              object is loading.
- * 
  **/
 namespace NERegistry
 {
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+    #pragma warning(disable: 4251)
+#endif  // _MSC_VER
+
+//////////////////////////////////////////////////////////////////////////
+// NERegistry::ListBase class declaration
+//////////////////////////////////////////////////////////////////////////
+    /**
+     * \brief   The base class of registry item list.
+     **/
+    template<typename Entry>
+    class TEListBase
+    {
+    //////////////////////////////////////////////////////////////////////////
+    // NERegistry::TEListBase class, Constructors / Destructor
+    //////////////////////////////////////////////////////////////////////////
+    protected:
+        /**
+         * \brief   Initialize an empty list.
+         **/
+        TEListBase( void ) = default;
+        /**
+         * \brief   Copies entries from given source.
+         **/
+        TEListBase( const TEListBase<Entry> & /* src */) = default;
+        /**
+         * \brief   Moves entries from given source.
+         **/
+        TEListBase( TEListBase<Entry> && /*src*/) noexcept = default;
+
+    //////////////////////////////////////////////////////////////////////////
+    // NERegistry::TEListBase class operators
+    //////////////////////////////////////////////////////////////////////////
+    public:
+        /**
+         * \brief   Copies entries from given source.
+         **/
+        TEListBase<Entry> & operator = ( const TEListBase<Entry> & /*src*/ ) = default;
+        /**
+         * \brief   Moves entries from given source.
+         **/
+        TEListBase<Entry> & operator = ( TEListBase<Entry> && /*src*/) noexcept = default;
+
+        /**
+         * \brief   Returns entry by given valid index. The index must be valid.
+         **/
+        inline const Entry & operator [ ] ( int index ) const;
+        inline Entry & operator [ ] ( int index );
+
+        /**
+         * \brief   Compares 2 list objects and returns true if the entries are equal.
+         **/
+        inline bool operator == ( const TEListBase<Entry> & other ) const;
+
+        /**
+         * \brief   Compares 2 list objects and returns true if the entries are not equal.
+         **/
+        inline bool operator != ( const TEListBase<Entry> & other ) const;
+
+    //////////////////////////////////////////////////////////////////////////
+    // NERegistry::TEListBase class attributes and operations
+    //////////////////////////////////////////////////////////////////////////
+
+        /**
+         * \brief   Returns true if list is valid. The valid list is not empty.
+         **/
+        inline bool isValid( void ) const;
+
+        /**
+         * \brief   Returns the size of the list.
+         **/
+        inline int getSize( void ) const;
+
+    //////////////////////////////////////////////////////////////////////////
+    // NERegistry::TEListBase class protected operations.
+    //////////////////////////////////////////////////////////////////////////
+    protected:
+
+        /**
+         * \brief   Returns an entry matching the given name. Otherwise, returns 'invalid'
+         * \param   elemName    The name of element entry in the list.
+         * \param   invalid     The instance of invalid entry. If there is no entry with
+         *                      the given name, it returns this invalid value.
+         **/
+        inline const Entry & getEntry( const std::string_view & elemName, const Entry & invalid) const;
+
+        /**
+         * \brief   Searches the entry by the given name and returns valid index if found.
+         *          Otherwise, returns NECommon::INVALID_INDEX invalid index.
+         * \param   elemName    The name of element in the list.
+         **/
+        inline int findEntry( const std::string_view & elemName ) const;
+
+        /**
+         * \brief   Searches the given entry and returns valid index if found.
+         *          Otherwise, returns NECommon::INVALID_INDEX invalid index.
+         * \param   elem        The element in the list to search.
+         **/
+        inline int findEntry( const Entry & elem ) const;
+
+        /**
+         *\ brief   Adds a new entry in the list.
+         * \param   entry   The new entry to add.
+         * \param   unique  If true, it will search the entry in the list and
+         *                  assign to copy all data. If false, new entry is added
+         *                  in the list without checking.
+         **/
+        int addEntry( const Entry & entry, bool unique = true );
+
+        /**
+         *\ brief   Adds a new entry in the list and uses std::move for that.
+         * \param   entry   The new entry to add.
+         * \param   unique  If true, it will search the entry in the list and
+         *                  assign to copy all data. If false, new entry is added
+         *                  in the list without checking.
+         **/
+        int placeEntry( Entry && entry, bool unique = true );
+
+        /**
+         * \brief   Removes specified entry from the list.
+         * \param   entry   The entry to remove.
+         * \return  Returns true if found an entry and removed.
+         **/
+        bool removeEntry( const Entry & entry );
+
+        /**
+         * \brief   Removes an entry of specified name from the list.
+         * \param   entryName   The name of entry to search in the list.
+         * \return  Returns true if found an entry with specified name and removed.
+         **/
+        bool removeEntry( const std::string_view & entryName );
+
+    //////////////////////////////////////////////////////////////////////////
+    // NERegistry::TEListBase class operators
+    //////////////////////////////////////////////////////////////////////////
+    public:
+        /**
+         * \brief   The list of registry entries.
+         **/
+        std::vector<Entry>  mList;
+    };
 
 //////////////////////////////////////////////////////////////////////////
 // NERegistry::ServiceEntry class declaration
 //////////////////////////////////////////////////////////////////////////
     /**
-     * \brief   NERegistry::ServiceEnty, defines Server side of implemented 
-     *          Service Interfaces inComponent. It contains name of 
-     *          Service Interface and implemented Version. One component 
+     * \brief   NERegistry::ServiceEnty, defines Server side of implemented
+     *          Service Interfaces inComponent. It contains name of
+     *          Service Interface and implemented Version. One component
      *          can contain more than one Service Entry, indicating all
      *          implemented Service Interfaces. The list of implemented
      *          Services are listed in the Service List.
@@ -129,12 +272,15 @@ namespace NERegistry
          *          The passed serviceName and the version number should be valid.
          *          The valid service name should not be empty or equal to NERegistry::INVALID_SERVICE_ENTRY_NAME.
          *          The version is valid, when either major or minor version numbers are not zero.
-         * \param   serviceName     The name of implemented service interface. 
-         * \param   major           The major version number of implemented interface. 
+         * \param   serviceName     The name of implemented service interface.
+         * \param   major           The major version number of implemented interface.
          * \param   minor           The minor version number of implemented interface
          * \param   patch           The patch version number of implemented interface
          **/
-        ServiceEntry( const char* serviceName, unsigned int major, unsigned int minor, unsigned int patch );
+        explicit ServiceEntry( const char* serviceName, unsigned int major, unsigned int minor, unsigned int patch );
+        explicit ServiceEntry( const std::string & serviceName, unsigned int major, unsigned int minor, unsigned int patch );
+        explicit ServiceEntry( const std::string_view & serviceName, unsigned int major, unsigned int minor, unsigned int patch );
+        explicit ServiceEntry( std::string && serviceName, unsigned int major, unsigned int minor, unsigned int patch );
 
         /**
          * \brief   Initialize service interface entry by given name and version object.
@@ -145,24 +291,22 @@ namespace NERegistry
          * \param   version     The version object of implemented service interface,
          *                      containing major, minor and patch version numbers
          **/
-        ServiceEntry( const char* serviceName, const Version & version );
+        explicit ServiceEntry( const char* serviceName, const Version & version );
+        explicit ServiceEntry( const std::string & serviceName, const Version & version );
+        explicit ServiceEntry( const std::string_view & serviceName, const Version & version );
+        explicit ServiceEntry( std::string && serviceName, const Version & version );
 
         /**
          * \brief   Copies data from given source.
          * \param   src     The source of data to copy.
          **/
-        ServiceEntry( const ServiceEntry & src );
+        ServiceEntry( const ServiceEntry & src ) = default;
 
         /**
          * \brief   Moves data from given source.
          * \param   src     The source of data to move.
          **/
-        ServiceEntry( ServiceEntry && src ) noexcept;
-
-        /**
-         * \brief   Destructor.
-         **/
-        ~ServiceEntry( void ) = default;
+        ServiceEntry( ServiceEntry && src ) noexcept = default;
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ServiceEntry class, Operators
@@ -172,13 +316,13 @@ namespace NERegistry
          * \brief   Copies Service Entry data from given source.
          * \param   src     The source of data to copy
          **/
-        NERegistry::ServiceEntry & operator = ( const NERegistry::ServiceEntry & src );
+        NERegistry::ServiceEntry & operator = ( const NERegistry::ServiceEntry & src ) = default;
 
         /**
          * \brief   Moves Service Entry data from given source.
          * \param   src     The source of data to move.
          **/
-        NERegistry::ServiceEntry & operator = ( NERegistry::ServiceEntry && src ) noexcept;
+        NERegistry::ServiceEntry & operator = ( NERegistry::ServiceEntry && src ) noexcept = default;
 
         /**
          * \brief   Checks the equality of two Service Entries and returns true if they are equal.
@@ -197,6 +341,11 @@ namespace NERegistry
          **/
         bool isValid( void ) const;
 
+        /**
+         * \brief   Returns service interface name.
+         **/
+        const std::string & getName( void ) const;
+
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ServiceEntry class, Member variables
     //////////////////////////////////////////////////////////////////////////
@@ -204,24 +353,21 @@ namespace NERegistry
         /**
          * \brief   The name of implemented Service Interface
          **/
-        String     mName;
-
+        std::string mName;
         /**
          * \brief   The Version of implemented Service.
          **/
-        Version   mVersion;
+        Version     mVersion;
     };
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ServiceList class declaration
     //////////////////////////////////////////////////////////////////////////
-    //!< The base class of Servicelist.
-    using ServiceListBase   = TEArrayList<NERegistry::ServiceEntry, const NERegistry::ServiceEntry &>;
     /**
-     * \brief   NERegistry::ServiceList, defines list of Service Entries. 
+     * \brief   NERegistry::ServiceList, defines list of Service Entries.
      *          It is a list of all implemented Service Interfaces in the Component.
      **/
-    class AREG_API ServiceList : public ServiceListBase
+    class AREG_API ServiceList  : public NERegistry::TEListBase<NERegistry::ServiceEntry>
     {
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ServiceList class, Constructors / Destructor
@@ -231,12 +377,6 @@ namespace NERegistry
          * \brief   Default constructor.
          **/
         ServiceList( void ) = default;
-
-        /**
-         * \brief   Creates Service List and adds specified Service Entry to the list as first element.
-         * \param   entry   The Service Entry to set as first element in the list.
-         **/
-        ServiceList( const NERegistry::ServiceEntry & entry );
 
         /**
          * \brief   Copies data from given source.
@@ -251,34 +391,24 @@ namespace NERegistry
         ServiceList( NERegistry::ServiceList && src ) noexcept = default;
 
         /**
-         * \brief   Destructor
+         * \brief   Creates Service List and adds specified Service Entry to the list as first element.
+         * \param   entry   The Service Entry to set as first element in the list.
          **/
-        ~ServiceList( void ) = default;
-
-    //////////////////////////////////////////////////////////////////////////
-    // NERegistry::ServiceList class, operator
-    //////////////////////////////////////////////////////////////////////////
+        explicit ServiceList( const NERegistry::ServiceEntry & entry );
 
         /**
-         * \brief   Copies Service Entries from given source of Service List.
-         * \param   src     The source of Service List, containing Service Entries.
+         * \brief   Copies the entries from the given source.
          **/
-        NERegistry::ServiceList & operator = ( const NERegistry::ServiceList & src ) = default;
+        ServiceList & operator = ( const NERegistry::ServiceList & src ) = default;
 
         /**
-         * \brief   Copies Service Entries from given source of Service List.
-         * \param   src     The source of Service List, containing Service Entries.
+         * \brief   Moves the entries from the given source.
          **/
-        NERegistry::ServiceList & operator = ( NERegistry::ServiceList && src ) noexcept = default;
+        ServiceList & operator = ( NERegistry::ServiceList && src ) = default;
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ServiceList class, Attributes and Operations
     //////////////////////////////////////////////////////////////////////////
-
-        /**
-         * \brief   Returns true if service entry list is valid
-         **/
-        bool isValid( void ) const;
 
         /**
          * \brief   Searches Service Entry having given name. Returns valid
@@ -286,39 +416,69 @@ namespace NERegistry
          *          NERegistry::INVALID_SERVICE_ENTRY.
          *          There should not be several Service Entries with same
          *          Service name. If a Service Interface should be implemented
-         *          more than one time, they should be registered in 
+         *          more than one time, they should be registered in
          *          different Components having different Role Names and
          *          running in different threads.
          * \param   serviceName The name of Service Entry to search.
          * \return  Returns valid Service Entry if found. Otherwise returns
          *          invalid entry NERegistry::INVALID_SERVICE_ENTRY.
          **/
-        const NERegistry::ServiceEntry & getService( const char* serviceName ) const;
+        const NERegistry::ServiceEntry & getService( const std::string_view & serviceName ) const;
 
         /**
-         * \brief   Searches Service Entry by given Service Name name and returns
+         * \brief   Searches Service Entry by given Service Name and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   serviceName The Service Name of Service Entry to search.
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
-        int findService( const char* serviceName ) const;
+        int findService( const std::string_view & serviceName ) const;
 
         /**
-         * \brief   Searches specified Service Entry and returns 
+         * \brief   Searches specified Service Entry and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   entry   The Service Entry to search in the list.
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
         int findService(const NERegistry::ServiceEntry & entry) const;
+
+        /**
+         * \brief   Adds new service entry in the list.
+         * \param   serviceName     The name of service entry to add.
+         * \param   version         The version of service interface entry to add.
+         * \return  Returns the index of service entry in the list.
+         **/
+        int addService(const std::string_view & serviceName, const Version & version);
+
+        /**
+         * \brief   Adds new service entry in the list.
+         * \param   entry       The service entry to add.
+         * \return  Returns the index of service entry in the list.
+         **/
+        int addService(const NERegistry::ServiceEntry & entry );
+
+        /**
+         * \brief   Removes a service interface entry of specified name.
+         * \param   serviceName     The name of service interface.
+         * \return  Returns true if found and remove entry of specified service interface name.
+         **/
+        bool removeService(const std::string_view & serviceName);
+
+        /**
+         * \brief   Remove a service entry from the list.
+         * \param   entry       The service interface entry to remove.
+         * \return  Returns true if found and removed an service interface entry.
+         **/
+        bool removeService( const NERegistry::ServiceEntry & entry );
+
     };
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::WorkerThreadEntry class declaration
     //////////////////////////////////////////////////////////////////////////
     /**
-     * \brief   NERegistry::WorkerThreadEntry, definines Worker Thread.
+     * \brief   NERegistry::WorkerThreadEntry, defines Worker Thread.
      *          It should be part of binding Component. The Worker Threads
      *          are created when Component is crated.
      **/
@@ -345,40 +505,48 @@ namespace NERegistry
          * \param   compRoleName        The name of Component (Role Name) where consumer is registered.
          * \param   compConsumerName    The name of Consumer object to configure, it should not be same as Component name.
          **/
-        WorkerThreadEntry( const char * masterThreadName, const char* workerThreadName, const char * compRoleName, const char* compConsumerName );
+        explicit WorkerThreadEntry( const char * masterThreadName
+                                  , const char* workerThreadName
+                                  , const char * compRoleName
+                                  , const char* compConsumerName );
+
+        explicit WorkerThreadEntry( const std::string_view & masterThreadName
+                                  , const std::string_view & workerThreadName
+                                  , const std::string_view & compRoleName
+                                  , const std::string_view & compConsumerName );
+
+        explicit WorkerThreadEntry( const std::string & masterThreadName
+                                  , const std::string & workerThreadName
+                                  , const std::string & compRoleName
+                                  , const std::string & compConsumerName );
 
         /**
          * \brief   Copies entries from given source.
          * \param   src     The source of data to copy.
          **/
-        WorkerThreadEntry( const NERegistry::WorkerThreadEntry & src );
+        WorkerThreadEntry( const NERegistry::WorkerThreadEntry & src ) = default;
 
         /**
          * \brief   Moves entries from given source.
          * \param   src     The source of data to move.
          **/
-        WorkerThreadEntry( NERegistry::WorkerThreadEntry && src ) noexcept;
-
-        /**
-         * \brief   Destructor
-         **/
-        ~WorkerThreadEntry( void ) = default;
+        WorkerThreadEntry( NERegistry::WorkerThreadEntry && src ) noexcept = default;
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::WorkerThreadEntry class, Operators
     //////////////////////////////////////////////////////////////////////////
 
         /**
-         * \brief   Copies Worker Thread Entry data from given source. 
+         * \brief   Copies Worker Thread Entry data from given source.
          * \param   src     The source of data to copy
          **/
-        NERegistry::WorkerThreadEntry & operator = ( const NERegistry::WorkerThreadEntry & src );
+        NERegistry::WorkerThreadEntry & operator = ( const NERegistry::WorkerThreadEntry & src ) = default;
 
         /**
          * \brief   Moves Worker Thread Entry data from given source.
          * \param   src     The source of data to move.
          **/
-        NERegistry::WorkerThreadEntry & operator = ( NERegistry::WorkerThreadEntry && src ) noexcept;
+        NERegistry::WorkerThreadEntry & operator = ( NERegistry::WorkerThreadEntry && src ) noexcept = default;
 
         /**
          * \brief   Checks equality of two Worker Thread Entries and returns true if they are equal.
@@ -397,6 +565,11 @@ namespace NERegistry
          **/
         bool isValid( void ) const;
 
+        /**
+         * \brief   Returns the name of worker thread.
+         **/
+        const std::string & getName( void ) const;
+
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::WorkerThreadEntry class, Member variables.
     //////////////////////////////////////////////////////////////////////////
@@ -404,24 +577,21 @@ namespace NERegistry
         /**
          * \brief   The name of Worker Thread
          **/
-        String mThreadName;
+        std::string mThreadName;
         /**
          * \brief   The name of Worker Thread Consumer.
          **/
-        String mConsumerName;
+        std::string mConsumerName;
    };
 
-    //////////////////////////////////////////////////////////////////////////
+   //////////////////////////////////////////////////////////////////////////
     // NERegistry::WorkerThreadList class declaration
     //////////////////////////////////////////////////////////////////////////
-    
-    //!< The worker thread list base class.
-    using WorkerThreadListBase = TEArrayList<NERegistry::WorkerThreadEntry, const NERegistry::WorkerThreadEntry&>;
     /**
      * \brief   NERegistry::WorkerThreadList. Defines list of Worker Thread Entries.
      *          It is a list of all Worker Threads binded with one Component.
      **/
-    class AREG_API WorkerThreadList    : public WorkerThreadListBase
+    class AREG_API WorkerThreadList : public NERegistry::TEListBase<NERegistry::WorkerThreadEntry>
     {
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::WorkerThreadList class, Constructors / Destructor
@@ -431,12 +601,6 @@ namespace NERegistry
          * \brief   Default constructor.
          **/
         WorkerThreadList( void ) = default;
-
-        /**
-         * \brief   Creates Worker Thread List and adds specified Worker Thread Entry to the list as first element.
-         * \param   entry   The Worker Thread Entry to set as first element in the list.
-         **/
-        WorkerThreadList( const NERegistry::WorkerThreadEntry & entry );
 
         /**
          * \brief   Copies data from given source.
@@ -451,63 +615,87 @@ namespace NERegistry
         WorkerThreadList( NERegistry::WorkerThreadList && src ) noexcept = default;
 
         /**
-         * \brief   Destructor
+         * \brief   Creates Worker Thread List and adds specified Worker Thread Entry to the list as first element.
+         * \param   entry   The Worker Thread Entry to set as first element in the list.
          **/
-        ~WorkerThreadList( void ) = default;
-
-    //////////////////////////////////////////////////////////////////////////
-    // NERegistry::WorkerThreadList class, Operator
-    //////////////////////////////////////////////////////////////////////////
+        explicit WorkerThreadList( const NERegistry::WorkerThreadEntry & entry );
 
         /**
-         * \brief   Copies Worker Thread Entries from given source of Worker Thread List.
-         * \param   src     The source of Worker Thread List, containing Worker Thread Entries.
+         * \brief   Copies entries from the given source.
          **/
-        NERegistry::WorkerThreadList & operator = ( const NERegistry::WorkerThreadList & src ) = default;
+        WorkerThreadList & operator = ( const WorkerThreadList & src ) = default;
 
         /**
-         * \brief   Copies Worker Thread Entries from given source of Worker Thread List.
-         * \param   src     The source of Worker Thread List, containing Worker Thread Entries.
+         * \brief   Moves entries from the given source.
          **/
-        NERegistry::WorkerThreadList & operator = ( NERegistry::WorkerThreadList && src ) noexcept = default;
+        WorkerThreadList & operator = ( WorkerThreadList && src ) = default;
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::WorkerThreadList class, Attributes and operations
     //////////////////////////////////////////////////////////////////////////
 
         /**
-         * \brief   Returns true if list is valid
-         **/
-        bool isValid( void ) const;
-
-        /**
          * \brief   Searches Worker Thread Entry having given name. Returns valid
          *          Worker Thread Entry if found, otherwise returns invalid entry
          *          NERegistry::INVALID_WORKER_THREAD_ENTRY.
-         *          There should not be several Worker Thread Entries with same name. 
+         *          There should not be several Worker Thread Entries with same name.
          * \param   threadName  The name of Worker Thread Entry to search.
          * \return  Returns valid Worker Thread Entry if found. Otherwise returns
          *          invalid entry NERegistry::INVALID_WORKER_THREAD_ENTRY.
          **/
-        const NERegistry::WorkerThreadEntry & getWorkerThread( const char* threadName ) const;
+        const NERegistry::WorkerThreadEntry & getWorkerThread( const std::string_view & threadName ) const;
 
         /**
          * \brief   Searches Worker Thread Entry by given thread name and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   threadName  The Worker Thread name to search entry
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
-        int findThread( const char* threadName ) const;
+        int findThread( const std::string_view & threadName ) const;
 
         /**
-         * \brief   Searches specified Worker Thread Entry and returns 
+         * \brief   Searches specified Worker Thread Entry and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   entry   The Worker Thread Entry to search in the list.
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
         int findThread( const NERegistry::WorkerThreadEntry & entry ) const;
+
+        /**
+         * \brief   Adds worker thread entry in the list.
+         * \param   masterThreadName    The name of Master Thread where Component is created and running.
+         * \param   workerThreadName    The name of Worker Thread of Component. The name should be unique.
+         * \param   compRoleName        The name of Component (Role Name) where consumer is registered.
+         * \param   compConsumerName    The name of Consumer object to configure, it should not be same as Component name.
+         * \return  Returns the index of worker thread entry in the list.
+         **/
+        int addWorkerThread( const std::string_view & masterThreadName
+                           , const std::string_view & workerThreadName
+                           , const std::string_view & compRoleName
+                           , const std::string_view & compConsumerName );
+
+        /**
+         * \brief   Adds worker thread entry in the list.
+         * \param   workerThread    The worker thread entry to add to the list.
+         * \return  Returns the index of worker thread entry in the list.
+         **/
+        int addWorkerThread( const NERegistry::WorkerThreadEntry & workerThread );
+
+        /**
+         * \brief   Removes worker thread entry from the list.
+         * \param   workerThreadName    The name of worker thread to remove.
+         * \return  Returns true if found and removed a worker thread entry from the list.
+         **/
+        bool removeWorkerThread( const std::string_view & workerThreadName );
+
+        /**
+         * \brief   Removes a worker thread entry from the list.
+         * \param   entry       The worker thread entry to remove.
+         * \return  Returns true if found and removed an entry from the list.
+         **/
+        bool removeWorkerThread( const NERegistry::WorkerThreadEntry & workerThread );
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -519,7 +707,7 @@ namespace NERegistry
      *          contains Role Name of dependent Server Component.
      *
      *          For example, if a Component ABC contains Dependency Entry
-     *          with Role Name XYZ, means that the Component ABC is a 
+     *          with Role Name XYZ, means that the Component ABC is a
      *          Client of Component XYZThe Service Interface server
      *          implementation is on Component XYZ side, and the Client of
      *          the same Service Interface is on Component ABC side
@@ -541,40 +729,37 @@ namespace NERegistry
          * \param   roleName    The Role Name of dependent Component to set.
          **/
         explicit DependencyEntry( const char* roleName );
+        explicit DependencyEntry( const std::string_view & roleName );
+        explicit DependencyEntry( const std::string & roleName );
+        explicit DependencyEntry( std::string && roleName );
 
         /**
          * \brief   Copies data from given source.
          * \param   src     The source of data to copy.
          **/
-        DependencyEntry( const NERegistry::DependencyEntry & src );
+        DependencyEntry( const NERegistry::DependencyEntry & src ) = default;
 
         /**
          * \brief   Moves data from given source.
          * \param   src     The source of data to move.
          **/
-        DependencyEntry( NERegistry::DependencyEntry && src ) noexcept;
-
-        /**
-         * \brief   Destructor
-         **/
-        ~DependencyEntry( void )= default;
+        DependencyEntry( NERegistry::DependencyEntry && src ) noexcept = default;
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::DependencyEntry class, Operators
     //////////////////////////////////////////////////////////////////////////
-    public:
 
         /**
-         * \brief   Copies  Dependency Entry  data from given source. 
+         * \brief   Copies  Dependency Entry  data from given source.
          * \param   src     The source of data to copy.
          **/
-        NERegistry::DependencyEntry & operator = ( const DependencyEntry & src );
+        NERegistry::DependencyEntry & operator = ( const DependencyEntry & src ) = default;
 
         /**
          * \brief   Moves Dependency Entry  data from given source.
          * \param   src     The source of data to move.
          **/
-        NERegistry::DependencyEntry & operator = ( DependencyEntry && src ) noexcept;
+        NERegistry::DependencyEntry & operator = ( DependencyEntry && src ) noexcept = default;
 
         /**
          * \brief   Checks equality of two Dependency Entries and returns true if they are equal.
@@ -586,48 +771,37 @@ namespace NERegistry
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::DependencyEntry class, Operators
     //////////////////////////////////////////////////////////////////////////
-    public:
         /**
          * \brief   Returns true if entry is valid. The entry is valid if role name is not empty
          **/
         bool isValid( void ) const;
 
         /**
-         * \brief   Sets the role name of dependent service.
-         * \param   roleName    The role name of dependent service. If empty, invalidates dependency.
+         * \brief   Returns the name of dependent service name.
          **/
-        void setDependentService( const char * roleName );
-
-        /**
-         * \brief   Returns the role name of dependent service.
-         **/
-        const String & getDepdendentService( void ) const;
+        const std::string & getName( void ) const;
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::DependencyEntry class, Member variables
     //////////////////////////////////////////////////////////////////////////
-    public:
         /**
          * \brief   The Role Name of dependent Component
          **/
-        String     mRoleName;
+        std::string mRoleName;
     };
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::DependencyList class declaration
     //////////////////////////////////////////////////////////////////////////
-
-    //!< The base class of dependency list 
-    using DependencyListBase = TEArrayList<NERegistry::DependencyEntry, const NERegistry::DependencyEntry&>;
     /**
-     * \brief   NERegistry::DependencyList, Defines list of Dependency Entries. 
-     *          It is a list of all dependent Components. Can be empty, 
+     * \brief   NERegistry::DependencyList, Defines list of Dependency Entries.
+     *          It is a list of all dependent Components. Can be empty,
      *          if Component does not have dependency.
      *          The dependency is needed to specify client-server relationship
      *          between Components. Every Dependency Entry is specifying
      *          client of specified Component.
      **/
-    class AREG_API DependencyList   : public DependencyListBase
+    class AREG_API DependencyList   : public NERegistry::TEListBase<NERegistry::DependencyEntry>
     {
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::DependencyList class, Constructors / Destructor
@@ -638,13 +812,6 @@ namespace NERegistry
          * \brief   Creates empty list of dependent services.
          **/
         DependencyList( void ) = default;
-
-        /**
-         * \brief   If passed entry is valid, creates a dependency list with one entry.
-         * \param   entry   The entry of dependent service. If entry is empty (invalid), 
-         *                  the parameter is ignored and empty list is created.
-         **/
-        DependencyList( const NERegistry::DependencyEntry & entry );
 
         /**
          * \brief   Copies entries from given source.
@@ -659,62 +826,82 @@ namespace NERegistry
         DependencyList( NERegistry::DependencyList && src ) noexcept = default;
 
         /**
-         * \brief   Destructor
+         * \brief   If passed entry is valid, creates a dependency list with one entry.
+         * \param   entry   The entry of dependent service. If entry is empty (invalid),
+         *                  the parameter is ignored and empty list is created.
          **/
-        ~DependencyList( void ) = default;
-
-    //////////////////////////////////////////////////////////////////////////
-    // NERegistry::DependencyList class, Operator
-    //////////////////////////////////////////////////////////////////////////
+        explicit DependencyList( const NERegistry::DependencyEntry & entry );
 
         /**
-         * \brief   Copies Dependency Entries from given source of Dependency List.
-         * \param   src     The source of Dependency List, containing Dependency Entries.
+         * \brief   Copies entries from the given source.
          **/
-        NERegistry::DependencyList & operator = ( const NERegistry::DependencyList & src ) = default;
+        DependencyList & operator = ( const DependencyList & src ) = default;
 
         /**
-         * \brief   Moves Dependency Entries from given source of Dependency List.
-         * \param   src     The source of Dependency List, containing Dependency Entries.
+         * \brief   Moves entries from the given source.
          **/
-        NERegistry::DependencyList & operator = ( NERegistry::DependencyList && src ) noexcept = default;
+        DependencyList & operator = ( DependencyList && src ) = default;
 
     //////////////////////////////////////////////////////////////////////////
-    // Operations
+    // NERegistry::DependencyList class, Attributes and Operations
     //////////////////////////////////////////////////////////////////////////
 
         /**
          * \brief   Searches Dependency Entry having given role name. Returns valid
          *          Worker Thread Entry if found, otherwise returns empty Dependency Entry.
-         *          There should not be several Dependency Entries with same name. 
+         *          There should not be several Dependency Entries with same name.
          * \param   roleName    The name of dependent Component Entry to search.
          * \return  Returns valid Dependency Entry if found. Otherwise returns
          *          empty entry.
          **/
-        const NERegistry::DependencyEntry & getDependency( const char* roleName ) const;
+        const NERegistry::DependencyEntry & getDependency( const std::string_view & roleName ) const;
 
         /**
          * \brief   Searches Dependency Entry by given role name and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   roleName    The Role Name of dependent Component
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
-        int findDependency( const char* roleName ) const;
+        int findDependency( const std::string_view & roleName ) const;
 
         /**
-         * \brief   Searches specified Dependency Entry and returns 
+         * \brief   Searches specified Dependency Entry and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   entry   The Dependency Entry to search in the list.
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
         int findDependency( const NERegistry::DependencyEntry & entry ) const;
 
         /**
-         * \brief   Returns true if dependency list is valid.
+         * \brief   Adds dependency to the list.
+         * \param   roleName    The role name of dependent service.
+         * \return  The index of dependency service in the list.
          **/
-        bool isValid( void ) const;
+        int addDependency( const std::string_view & roleName );
+
+        /**
+         * \brief   Adds dependency to the list.
+         * \param   entry       The service dependency element.
+         * \return  The index of dependency service in the list.
+         **/
+        int addDependency( const NERegistry::DependencyEntry & entry );
+
+        /**
+         * \brief   Removes from the list the dependency entry with the specified role name.
+         * \param   roleName    The role name of dependency entry.
+         * \return  Returns true if found and removed an entry with specified role name.
+         **/
+        bool removeDependency( const std::string_view & roleName );
+
+        /**
+         * \brief   Removes an entry from the list.
+         * \param   entry   The entry to remove from the list.
+         * \return  Returns true if found and remove specified entry.
+         **/
+        bool removeDependency( const NERegistry::DependencyEntry & entry );
+
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -751,7 +938,10 @@ namespace NERegistry
          * \param   funcCreate          Pointer of component create function
          * \param   funcDelete          Pointer of component delete function
          **/
-        ComponentEntry( const char * masterThreadName, const char* roleName, FuncCreateComponent funcCreate, FuncDeleteComponent funcDelete );
+        ComponentEntry( const std::string_view & masterThreadName
+                      , const std::string_view & roleName
+                      , FuncCreateComponent funcCreate
+                      , FuncDeleteComponent funcDelete );
 
         /**
          * \brief   Initialize Component Entry by given Role Name, component thread, component create and delete methods,
@@ -765,8 +955,8 @@ namespace NERegistry
          * \param   dependencyList      The list of dependent service interfaces
          * \param   workerList          The list of worker threads
          **/
-        ComponentEntry(   const char * masterThreadName
-                        , const char * roleName
+        ComponentEntry(   const std::string_view & masterThreadName
+                        , const std::string_view & roleName
                         , FuncCreateComponent funcCreate
                         , FuncDeleteComponent funcDelete
                         , const NERegistry::ServiceList & serviceList
@@ -785,8 +975,8 @@ namespace NERegistry
          * \param   dependencyList      The entry of dependent service interface, if there is any
          * \param   workerList          The entry of worker thread, if there is any
          **/
-        ComponentEntry(   const char * masterThreadName
-                        , const char * roleName
+        ComponentEntry(   const std::string_view & masterThreadName
+                        , const std::string_view & roleName
                         , FuncCreateComponent funcCreate
                         , FuncDeleteComponent funcDelete
                         , const NERegistry::ServiceEntry & service
@@ -797,18 +987,14 @@ namespace NERegistry
          * \brief   Copies data from given source.
          * \param   src     The source of data to copy.
          **/
-        ComponentEntry( const NERegistry::ComponentEntry & src );
+        ComponentEntry( const NERegistry::ComponentEntry & src ) = default;
 
         /**
          * \brief   Moves data from given source.
          * \param   src     The source of data to move.
          **/
-        ComponentEntry( NERegistry::ComponentEntry && src ) noexcept;
+        ComponentEntry( NERegistry::ComponentEntry && src ) noexcept = default;
 
-        /**
-         * \brief   Destructor
-         **/
-        ~ComponentEntry( void ) = default;
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentEntry class, Operators
@@ -818,13 +1004,13 @@ namespace NERegistry
          * \brief   Copies Component Entry data from given source.
          * \param   src     The source of data to copy
          **/
-        NERegistry::ComponentEntry & operator = ( const NERegistry::ComponentEntry & src );
+        NERegistry::ComponentEntry & operator = ( const NERegistry::ComponentEntry & src ) = default;
 
         /**
          * \brief   Moves Component Entry data from given source.
          * \param   src     The source of data to move.
          **/
-        NERegistry::ComponentEntry & operator = ( NERegistry::ComponentEntry && src ) noexcept;
+        NERegistry::ComponentEntry & operator = ( NERegistry::ComponentEntry && src ) noexcept = default;
 
         /**
          * \brief   Checks equality of two Component Entries and returns true if they are equal.
@@ -844,19 +1030,24 @@ namespace NERegistry
         bool isValid( void ) const;
 
         /**
-         * \brief   Adds supported Service Entry in Component Entry object. 
+         * \brief   Returns the name of service component.
+         **/
+        const std::string & getName( void ) const;
+
+        /**
+         * \brief   Adds supported Service Entry in Component Entry object.
          *          The Service Entry is defining implemented Service Interface,
-         *          supported by Component. A Component may have more than one different 
+         *          supported by Component. A Component may have more than one different
          *          Service Interfaces implementation.
-         * \param   entry   The Service Entry, defining implemented 
+         * \param   entry   The Service Entry, defining implemented
          *                  Service Interface in Component.
          **/
         void addSupportedService( const NERegistry::ServiceEntry & entry );
-        
+
         /**
          * \brief   Adds List of supported Service Entries in Component Entry object.
          *          Every Service Entry in the List is defining implemented Service Interface,
-         *          supported by Component. A Component may have more than one different 
+         *          supported by Component. A Component may have more than one different
          *          Service Interfaces implementation.
          * \param   serviceList The list of Service Entries. Every Service Entry is defining
          *                      implemented Service Interfaces in Component.
@@ -866,24 +1057,24 @@ namespace NERegistry
         /**
          * \brief   Adds supported service interface entry in the component entry object.
          *          The serviceName should be unique within component entry context.
-         * \param   serviceName The name of supported service interface. 
+         * \param   serviceName The name of supported service interface.
          *                      If not unique, no new entry added.
          * \param   version     The supported interface version.
          * \return  Returns either new added instance or the existing instance of supported service interface.
          *          The uniqueness is checked within component entry context and ignores the version number.
          **/
-        NERegistry::ServiceEntry & addSupportedService( const char * serviceName, const Version & version );
+        NERegistry::ServiceEntry & addSupportedService( const std::string_view & serviceName, const Version & version );
 
         /**
          * \brief   Searches given supported service. If found, removes from list.
          * \param   serviceName The name of supported service
          * \return  Returns true if found and remove supported service entry in the list.
          **/
-        bool removeSupportedService( const char * serviceName );
+        bool removeSupportedService( const std::string_view & serviceName );
 
         /**
          * \brief   Searches Service Entry in the existing list of Component Entry
-         *          and returns the zero-based valid position if found. 
+         *          and returns the zero-based valid position if found.
          *          Otherwise, returns -1, if cannot find Service Entry in the list.
          * \param   entry   The Service Entry to search in the list.
          * \return  If Entry found, returns valid zero-based index of element.
@@ -892,17 +1083,17 @@ namespace NERegistry
         int findSupportedService( const NERegistry::ServiceEntry & entry ) const;
 
         /**
-         * \brief   By given name, searches Service Entry in the existing list of 
+         * \brief   By given name, searches Service Entry in the existing list of
          *          Component Entry and returns the zero-based valid position if found.
          *          Returns -1, if cannot find Service Entry in the list.
          * \param   serviceName The Name of Service Entry to search in the list.
          * \return  If Entry found, returns valid zero-based index of element.
          *          Otherwise, returns -1.
          **/
-        int findSupportedService( const char* serviceName ) const;
+        int findSupportedService( const std::string_view & serviceName ) const;
 
         /**
-         * \brief   Adds Worker Thread Entry in Component Entry object. 
+         * \brief   Adds Worker Thread Entry in Component Entry object.
          *          The Worker Thread Entry is defining Worker Thread object,
          *          binded with Component. A Component may have zero or more
          *          binded Worker Threads.
@@ -912,11 +1103,11 @@ namespace NERegistry
         void addWorkerThread( const NERegistry::WorkerThreadEntry & entry );
 
         /**
-         * \brief   Adds List of Worker Thread Entries in Component Entry object. 
+         * \brief   Adds List of Worker Thread Entries in Component Entry object.
          *          Every Worker Thread Entry in the List is defining Worker Thread object,
          *          binded with Component. A Component may have zero or more
          *          binded Worker Threads.
-         * \param   workerList  The List of Worker Thread Entries, defining list of 
+         * \param   workerList  The List of Worker Thread Entries, defining list of
          *                      Worker Thread objects binded with Component.
          **/
         void addWorkerThread( const NERegistry::WorkerThreadList & workerList );
@@ -926,20 +1117,20 @@ namespace NERegistry
          *          and returns the valid position in the list. Returns -1, if cannot
          *          find Worker Thread Entry in the list.
          * \param   entry   The Worker Thread Entry to search in the list.
-         * \return  If Entry found, returns valid zero-based index of element. 
+         * \return  If Entry found, returns valid zero-based index of element.
          *          Otherwise, returns -1.
          **/
         int findWorkerThread( const NERegistry::WorkerThreadEntry & entry ) const;
 
         /**
-         * \brief   By given name, searches Worker Thread Entry in the existing list of 
-         *          Component Entry and returns the valid position in the list. 
+         * \brief   By given name, searches Worker Thread Entry in the existing list of
+         *          Component Entry and returns the valid position in the list.
          *          Returns -1, if cannot find Worker Thread Entry in the list.
          * \param   workerName  The Name of Worker Thread Entry to search in the list.
-         * \return  If Entry found, returns valid zero-based index of element. 
+         * \return  If Entry found, returns valid zero-based index of element.
          *          Otherwise, returns -1.
          **/
-        int findWorkerThread( const char* workerName ) const;
+        int findWorkerThread( const std::string_view & workerName ) const;
 
         /**
          * \brief   Searches the worker thread entry in the list.
@@ -947,10 +1138,10 @@ namespace NERegistry
          * \param   workerName  The name of worker thread to remove
          * \return  Returns true if worker thread entry found and could remove.
          **/
-        bool removeWorkerThread( const char * workerName );
+        bool removeWorkerThread( const std::string_view & workerName );
 
         /**
-         * \brief   Adds Dependency Entry in Component Entry object. 
+         * \brief   Adds Dependency Entry in Component Entry object.
          *          The Dependency Entry is defining Client part of Server Component,
          *          specified by Role Name. A Component may have more than one same
          *          Service Interfaces dependency, but every dependency should
@@ -965,7 +1156,7 @@ namespace NERegistry
         void addDependencyService( const NERegistry::DependencyEntry & entry );
 
         /**
-         * \brief   Adds List of Dependency Entries in Component Entry object. 
+         * \brief   Adds List of Dependency Entries in Component Entry object.
          *          Every Dependency Entry in the List is defining Client part of Server Component,
          *          specified by Role Name. A Component may have more than one same
          *          Service Interfaces dependency, but every dependency should
@@ -985,7 +1176,7 @@ namespace NERegistry
          * \param   roleName    The name dependent service.
          * \return  Returns the instance of new added or existing dependency of specified service.
          **/
-        NERegistry::DependencyEntry & addDependencyService( const char * roleName );
+        NERegistry::DependencyEntry & addDependencyService( const std::string_view & roleName );
 
         /**
          * \brief   Searches Dependency Entry in the existing list of Component Entry
@@ -1003,17 +1194,17 @@ namespace NERegistry
          * \param   serviceName     The name of dependency service role name to search.
          * \return  Returns true if found entry and could remove it.
          **/
-        bool removeDependencyService( const char * roleName );
+        bool removeDependencyService( const std::string_view & roleName );
 
         /**
-         * \brief   By given name, searches Dependency Entry in the existing list of 
-         *          Component Entry and returns the valid position in the list. 
+         * \brief   By given name, searches Dependency Entry in the existing list of
+         *          Component Entry and returns the valid position in the list.
          *          Returns -1, if cannot find Dependency Entry in the list.
          * \param   roleName    The Name of Dependency Entry to search in the list.
          * \return  If Entry found, returns valid zero-based index of element.
          *          Otherwise, returns -1.
          **/
-        int findDependencyService(const char* roleName) const;
+        int findDependencyService(const std::string_view & roleName) const;
 
         /**
          * \brief   Returns list of supported Services of Component Entry object
@@ -1041,7 +1232,7 @@ namespace NERegistry
         /**
          * \brief   Sets component data to pass to component create method.
          * \param   compData    The data to set in component which is passed to create method.
-         * \note    The system automatically does not free manually allocated space. This means that 
+         * \note    The system automatically does not free manually allocated space. This means that
          *          if as a component data a pointer to manually allocated object is passed,
          *          it should be as well manually freed.
          **/
@@ -1055,15 +1246,14 @@ namespace NERegistry
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentEntry class, Member variables
     //////////////////////////////////////////////////////////////////////////
-    public:
         /**
          * \brief   The Role Name of Component
          **/
-        String              mRoleName;
+        std::string         mRoleName;
         /**
          * \brief   The Master Thread Entry of Component.
          **/
-        String              mThreadName;
+        std::string         mThreadName;
         /**
          * \brief   Pointer of function to create component
          **/
@@ -1095,9 +1285,6 @@ namespace NERegistry
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentEntryList class declaration
     //////////////////////////////////////////////////////////////////////////
-
-    //!< The base class of component list.
-    using ComponentListBase = TEArrayList<NERegistry::ComponentEntry, const NERegistry::ComponentEntry&>;
     /**
      * \brief   NERegistry::ComponentList. Defines list of Component Entries.
      *          It is a list of all Components within one Thread.
@@ -1106,7 +1293,7 @@ namespace NERegistry
      *          If more than one Components are implementing same Service Interface,
      *          they should be listed in different list of different thread.
      **/
-    class AREG_API ComponentList   : public ComponentListBase
+    class AREG_API ComponentList   : public NERegistry::TEListBase<NERegistry::ComponentEntry>
     {
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentList class, Friend classes
@@ -1123,12 +1310,6 @@ namespace NERegistry
         ComponentList( void ) = default;
 
         /**
-         * \brief   Creates Component List and adds specified Component Entry to the list as first element.
-         * \param   entry   The Component Entry to set as first element in the list.
-         **/
-        explicit ComponentList(  const NERegistry::ComponentEntry & entry );
-
-        /**
          * \brief   Copies data from given source.
          * \param   src     The source of data to copy.
          **/
@@ -1141,74 +1322,85 @@ namespace NERegistry
         ComponentList( NERegistry::ComponentList && src ) noexcept = default;
 
         /**
-         * \brief   Destructor
+         * \brief   Creates Component List and adds specified Component Entry to the list as first element.
+         * \param   entry   The Component Entry to set as first element in the list.
          **/
-        ~ComponentList( void ) = default;
-
-    //////////////////////////////////////////////////////////////////////////
-    // NERegistry::ComponentList class, Operators
-    //////////////////////////////////////////////////////////////////////////
+        explicit ComponentList( const NERegistry::ComponentEntry & entry );
 
         /**
-         * \brief   Copies Component Entries from given source of Component List.
-         * \param   src     The source of Component List, containing Component Entries.
+         * \brief   Copies entries from the given list.
          **/
-        NERegistry::ComponentList & operator = ( const NERegistry::ComponentList & src ) = default;
+        ComponentList & operator = ( const ComponentList & src ) = default;
 
         /**
-         * \brief   Moves Component Entries from given source of Component List.
-         * \param   src     The source of Component List, containing Component Entries.
+         * \brief   Moves entries from the given list.
          **/
-        NERegistry::ComponentList & operator = ( NERegistry::ComponentList && src ) noexcept = default;
+        ComponentList & operator = ( ComponentList && src ) = default;
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentList class, Attributes and Operations
     //////////////////////////////////////////////////////////////////////////
 
         /**
-         * \brief   Returns true if Component List is valid.
-         **/
-        bool isValid( void ) const;
-
-        /**
          * \brief   Searches Component Entry having given name. Returns valid
          *          Component Entry if found, otherwise returns invalid entry
          *          NERegistry::INVALID_COMPONENT_ENTRY.
-         *          There should not be several Component Entries with same name. 
+         *          There should not be several Component Entries with same name.
          * \param   roleName    The name of Component Entry to search.
          * \return  Returns valid Component Entry if found. Otherwise returns
          *          invalid entry NERegistry::INVALID_COMPONENT_ENTRY.
          **/
-        const NERegistry::ComponentEntry & getComponent( const char* roleName ) const;
+        const NERegistry::ComponentEntry & getComponent( const std::string_view & roleName ) const;
 
         /**
          * \brief   Searches in the list the component by given name. If found, sets component data.
          *          Returns true if found component and the data was successfully set.
          * \param   roleName    The name of component to search in the list.
          * \param   compData    The data to set in component which is passed to create method.
-         * \note    The system automatically does not free manually allocated space. This means that 
+         * \note    The system automatically does not free manually allocated space. This means that
          *          if as a component data a pointer to manually allocated object is passed,
          *          it should be as well manually freed.
          **/
-        bool setComponentData( const char * roleName, NEMemory::uAlign compData );
+        bool setComponentData( const std::string_view & roleName, NEMemory::uAlign compData );
 
         /**
          * \brief   Searches Component Entry by given Role Name and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   roleName    The Role Name of Component Entry to search.
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
-        int findComponent( const char* roleName ) const;
+        int findComponent( const std::string_view & roleName ) const;
 
         /**
-         * \brief   Searches specified Component Entry and returns 
+         * \brief   Searches specified Component Entry and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   entry   The Component Entry to search in the list.
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
-        int findComponent(const NERegistry::ComponentEntry& entry) const;
+        int findComponent(const NERegistry::ComponentEntry & entry) const;
+
+        /**
+         * \brief   Adds a component entry to the list.
+         * \param   entry   The component entry to add.
+         * \return  Returns index of component entry.
+         **/
+        int addComponent( const NERegistry::ComponentEntry & entry );
+
+        /**
+         * \brief   Remove a component entry of specified name from the list.
+         * \param   roleName    The role name of component to remove.
+         * \return  Returns true if found and removed component entry.
+         **/
+        bool removeComponent( const std::string_view & roleName );
+
+        /**
+         * \brief   The component entry to remove from the list.
+         * \param   entry       The component entry to remove.
+         * \return  Returns true if found and removed component entry.
+         **/
+        bool removeComponent( const NERegistry::ComponentEntry & entry );
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -1216,7 +1408,7 @@ namespace NERegistry
     //////////////////////////////////////////////////////////////////////////
     /**
      * \brief   NERegistry::ComponentThreadEntry. Defines Master Thread of one or
-     *          mode registered Component. All registered Components are 
+     *          mode registered Component. All registered Components are
      *          created in specified thread. One Thread should have at least
      *          one registered Component. All registered Components should have
      *          unique Role Names and different Service Names.
@@ -1241,31 +1433,26 @@ namespace NERegistry
          * \brief   Initialize Thread Entry with given Thread Name.
          * \param   threadName  The Thread Name to assign.
          **/
-        explicit ComponentThreadEntry( const char* threadName );
+        explicit ComponentThreadEntry( const std::string_view & threadName );
 
         /**
          * \brief   Initialize Thread Entry with given Thread Name and given Component List.
          * \param   threadName      The Thread Name to assign.
          * \param   componentList   The List of Component Entries to assign.
          **/
-        ComponentThreadEntry( const char* threadName, const NERegistry::ComponentList & componentList );
+        ComponentThreadEntry( const std::string_view & threadName, const NERegistry::ComponentList & componentList );
 
         /**
          * \brief   Copies data from given source.
          * \param   src     The source of data to copy.
          **/
-        ComponentThreadEntry( const NERegistry::ComponentThreadEntry & src );
+        ComponentThreadEntry( const NERegistry::ComponentThreadEntry & src ) = default;
 
         /**
          * \brief   Moves data from given source.
          * \param   src     The source of data to move.
          **/
-        ComponentThreadEntry( NERegistry::ComponentThreadEntry && src ) noexcept;
-
-        /**
-         * \brief   Destructor
-         **/
-        ~ComponentThreadEntry( void ) = default;
+        ComponentThreadEntry( NERegistry::ComponentThreadEntry && src ) noexcept = default;
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentThreadEntry class, Operators
@@ -1275,13 +1462,13 @@ namespace NERegistry
          * \brief   Copies Thread Entry data from given source.
          * \param   src     The source of data to copy
          **/
-        NERegistry::ComponentThreadEntry & operator = ( const NERegistry::ComponentThreadEntry & src );
+        NERegistry::ComponentThreadEntry & operator = ( const NERegistry::ComponentThreadEntry & src ) = default;
 
         /**
          * \brief   Moves Thread Entry data from given source.
          * \param   src     The source of data to move.
          **/
-        NERegistry::ComponentThreadEntry & operator = ( NERegistry::ComponentThreadEntry && src ) noexcept;
+        NERegistry::ComponentThreadEntry & operator = ( NERegistry::ComponentThreadEntry && src ) noexcept = default;
 
         /**
          * \brief   Checks equality of two Thread Entries and returns true if they are equal.
@@ -1301,7 +1488,12 @@ namespace NERegistry
         bool isValid( void ) const;
 
         /**
-         * \brief   Adds supported Component Entry in Thread Entry object. 
+         * \brief   Returns the name of the thread.
+         **/
+        const std::string & getName( void ) const;
+
+        /**
+         * \brief   Adds supported Component Entry in Thread Entry object.
          *          A Thread may have more than one Component with unique
          *          Role Name, and every Component within one Thread should
          *          have implementation of different Service Interfaces.
@@ -1317,7 +1509,7 @@ namespace NERegistry
         void addComponent( const NERegistry::ComponentEntry & entry );
 
         /**
-         * \brief   Adds List of supported Component Entries in Thread Entry object. 
+         * \brief   Adds List of supported Component Entries in Thread Entry object.
          *          A Thread may have more than one Component with unique
          *          Role Name, and every Component within one Thread should
          *          have implementation of different Service Interfaces.
@@ -1344,7 +1536,7 @@ namespace NERegistry
          * \note    NOTE:   The method does not check the uniqueness of role name within the entire system or entire
          *                  model. It checks only within the current component thread entry context.
          **/
-        NERegistry::ComponentEntry & addComponent( const char * roleName, FuncCreateComponent funcCreate, FuncDeleteComponent funcDelete );
+        NERegistry::ComponentEntry & addComponent( const std::string_view & roleName, FuncCreateComponent funcCreate, FuncDeleteComponent funcDelete );
 
         /**
          * \brief   Searches the component entry by given role name.
@@ -1352,11 +1544,11 @@ namespace NERegistry
          * \param   roleName    The roleName of service component to search and remove.
          * \return  Returns true if found and could remove the component entry.
          **/
-        bool removeComponent( const char * roleName );
+        bool removeComponent( const std::string_view & roleName );
 
         /**
          * \brief   Searches Component Entry in the existing list of Thread Entry
-         *          and returns the zero-based valid position if found. 
+         *          and returns the zero-based valid position if found.
          *          Otherwise, returns -1, if cannot find Component Entry in the list.
          * \param   entry   The Component Entry to search in the list.
          * \return  If Entry found, returns valid zero-based index of element.
@@ -1365,36 +1557,34 @@ namespace NERegistry
         int findComponentEntry( const NERegistry::ComponentEntry & entry ) const;
 
         /**
-         * \brief   By given name, searches Component Entry in the existing list of 
+         * \brief   By given name, searches Component Entry in the existing list of
          *          Thread Entry and returns the zero-based valid position if found.
          *          Returns -1, if cannot find Component Entry in the list.
          * \param   roleName    The Name of Component Entry to search in the list.
          * \return  If Entry found, returns valid zero-based index of element.
          *          Otherwise, returns -1.
          **/
-        int findComponentEntry( const char* roleName ) const;
+        int findComponentEntry( const std::string_view & roleName ) const;
 
         /**
          * \brief   Searches in the list the component by given name. If found, sets component data.
          *          Returns true if found component and the data was successfully set.
          * \param   roleName    The name of component to search in the list.
          * \param   compData    The data to set in component which is passed to create method.
-         * \note    The system automatically does not free manually allocated space. This means that 
+         * \note    The system automatically does not free manually allocated space. This means that
          *          if as a component data a pointer to manually allocated object is passed,
          *          it should be as well manually freed.
          **/
-        bool setComponentData( const char * roleName, NEMemory::uAlign compData );
+        bool setComponentData( const std::string_view & roleName, NEMemory::uAlign compData );
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentThreadEntry class, Member variables
     //////////////////////////////////////////////////////////////////////////
     public:
-
         /**
          * \brief   The name of thread component (thread name)
          **/
-        String          mThreadName;
-
+        std::string     mThreadName;
         /**
          * \brief   List of component entries
          **/
@@ -1404,15 +1594,12 @@ namespace NERegistry
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentThreadList class declaration
     //////////////////////////////////////////////////////////////////////////
-
-    //!< The base class of component thread list.
-    using ComponentThreadListBase = TEArrayList< NERegistry::ComponentThreadEntry, const NERegistry::ComponentThreadEntry & >;
     /**
      * \brief   NERegistry::ComponentThreadList. Defines list of Thread Entries in Model.
      *          All names of Thread should be unique. A Model has more than one
      *          Thread Entry.
      **/
-    class AREG_API ComponentThreadList  : public ComponentThreadListBase
+    class AREG_API ComponentThreadList  : public NERegistry::TEListBase<NERegistry::ComponentThreadEntry>
     {
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentThreadList class, Friend classes
@@ -1430,12 +1617,6 @@ namespace NERegistry
         ComponentThreadList( void ) = default;
 
         /**
-         * \brief   Creates Component Thread List and adds specified Thread Entry to the list as first element.
-         * \param   entry   The Thread Entry to set as first element in the list.
-         **/
-        explicit ComponentThreadList( const NERegistry::ComponentThreadEntry & entry );
-
-        /**
          * \brief   Copies entries from given source.
          * \param   src     The source of data to copy.
          **/
@@ -1448,9 +1629,10 @@ namespace NERegistry
         ComponentThreadList( NERegistry::ComponentThreadList && src ) noexcept = default;
 
         /**
-         * \brief   Destructor
+         * \brief   Creates Component Thread List and adds specified Thread Entry to the list as first element.
+         * \param   entry   The Thread Entry to set as first element in the list.
          **/
-        ~ComponentThreadList( void ) = default;
+        explicit ComponentThreadList( const NERegistry::ComponentThreadEntry & entry );
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::ComponentThreadList class, Operators
@@ -1473,38 +1655,58 @@ namespace NERegistry
     //////////////////////////////////////////////////////////////////////////
 
         /**
-         * \brief   Returns true if Thread List is valid.
-         **/
-        bool isValid( void ) const;
-
-        /**
          * \brief   Searches Thread Entry having given name. Returns valid
          *          Thread Entry if found, otherwise returns invalid entry
          *          NERegistry::INVALID_THREAD_ENTRY.
-         *          There should not be several Thread Entries with same name. 
+         *          There should not be several Thread Entries with same name.
          * \param   threadName  The name of Thread Entry to search.
          * \return  Returns valid Thread Entry if found. Otherwise returns
          *          invalid entry NERegistry::INVALID_THREAD_ENTRY.
          **/
-        const NERegistry::ComponentThreadEntry & getThread( const char* threadName ) const;
+        const NERegistry::ComponentThreadEntry & getThread( const std::string_view & threadName ) const;
 
         /**
          * \brief   Searches Thread Entry by given Thread Name and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   threadName  The Thread Name of Thread Entry to search.
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
-        int findThread( const char* threadName ) const;
+        int findThread( const std::string_view & threadName ) const;
 
         /**
-         * \brief   Searches specified Thread Entry and returns 
+         * \brief   Searches specified Thread Entry and returns
          *          zero-based valid index if found. The valid index is not negative.
          * \param   entry   The Thread Entry to search in the list.
-         * \return  Returns zero-based valid index if found entry. 
+         * \return  Returns zero-based valid index if found entry.
          *          Otherwise, returns -1.
          **/
         int findThread( const NERegistry::ComponentThreadEntry & entry ) const;
+
+        /**
+         * \brief   Adds a thread entry to the list.
+         * \param   entry   The thread entry in the list.
+         **/
+        int addThread( const NERegistry::ComponentThreadEntry & entry );
+
+        /**
+         * \brief   Adds a thread entry to the list.
+         * \param   threadName  The name of the thread to add to the list.
+         **/
+        int addThread( const std::string_view & threadName, const ComponentList & compList);
+
+        /**
+         * \brief   Removes a thread with the given name.
+         * \param   threadName  The name of the thread to remove.
+         * \return  Returns true if found and removed an entry with the given name.
+         **/
+        bool removeThread( const std::string_view & threadName );
+
+        /**
+         * \brief   Removes the specified thread entry from the list.
+         * \param   entry   The thread entry to remove from the list.
+         **/
+        bool removeThread( const NERegistry::ComponentThreadEntry & entry );
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -1536,24 +1738,24 @@ namespace NERegistry
         /**
          * \brief   Initialize empty Model and sets given Name.
          **/
-        explicit Model( const char* modelName );
+        explicit Model( const std::string_view & modelName );
 
         /**
          * \brief   Initialize empty Model and sets given Name.
          **/
-        Model( const char* modelName, const ComponentThreadList & threadList );
+        Model( const std::string_view & modelName, const ComponentThreadList & threadList );
 
         /**
          * \brief   Copies model entries from given source.
          * \param   src     The source of data to copy.
          **/
-        Model( const Model & src );
+        Model( const Model & src ) = default;
 
         /**
          * \brief   Moves model entries from given source.
          * \param   src     The source of data to move.
          **/
-        Model( Model && src ) noexcept;
+        Model( Model && src ) noexcept = default;
 
         /**
          * \brief   Destructor
@@ -1565,16 +1767,16 @@ namespace NERegistry
     //////////////////////////////////////////////////////////////////////////
 
         /**
-         * \brief   Copies Model data from given source, 
+         * \brief   Copies Model data from given source,
          * \param   src     The source of data to copy
          **/
-        NERegistry::Model & operator = ( const NERegistry::Model & src );
+        NERegistry::Model & operator = ( const NERegistry::Model & src ) = default;
 
         /**
          * \brief   Moves Model data from given source,
          * \param   src     The source of data to move.
          **/
-        NERegistry::Model & operator = ( NERegistry::Model && src ) noexcept;
+        NERegistry::Model & operator = ( NERegistry::Model && src ) noexcept = default;
 
         /**
          * \brief   Checks equality of two Models and returns true if they are equal.
@@ -1595,10 +1797,10 @@ namespace NERegistry
         /**
          * \brief   Returns the name of model.
          **/
-        const String & getModelName( void ) const;
+        const std::string & getModelName( void ) const;
 
         /**
-         * \brief   Searches specified Component Entry  and returns true if 
+         * \brief   Searches specified Component Entry  and returns true if
          *          found specified Component Entry. Otherwise returns false.
          * \param   entry   The Component Entry to search in entire Model.
          * \return  Returns true if found specified Component Entry.
@@ -1607,13 +1809,13 @@ namespace NERegistry
         bool hasRegisteredComponent( const NERegistry::ComponentEntry & entry ) const;
 
         /**
-         * \brief   Searches specified Component Entry  and returns true if 
+         * \brief   Searches specified Component Entry  and returns true if
          *          found specified Component Entry by Role Name. Otherwise returns false.
          * \param   roleName    The Role Name of Component Entry to search in entire Model.
          * \return  Returns true if found specified Component Entry.
          *          Otherwise returns false.
          **/
-        bool hasRegisteredComponent( const char * roleName ) const;
+        bool hasRegisteredComponent( const std::string_view & roleName ) const;
 
         /**
          * \brief   Returns true if Model is loaded. Otherwise, returns false.
@@ -1627,7 +1829,7 @@ namespace NERegistry
 
         /**
          * \brief   Sets flag and marks Model as loaded or unloaded.
-         * \param   isLoaded    The flag to set. 
+         * \param   isLoaded    The flag to set.
          *                      If true, the Model is marked as loaded.
          *                      If false, the Model is marked as unloaded.
          **/
@@ -1658,7 +1860,7 @@ namespace NERegistry
          *                  model context escaping worker thread names. The caller must take care of uniqueness
          *                  by its self.
          **/
-        NERegistry::ComponentThreadEntry & addThread(const char * threadName );
+        NERegistry::ComponentThreadEntry & addThread(const std::string_view & threadName );
 
         /**
          * \brief   Searches component thread entry in the list.
@@ -1666,11 +1868,11 @@ namespace NERegistry
          * \param   threadName  The name of component thread to search.
          * \return  Returns true if found and could remove the thread entry from the list.
          **/
-        bool removeThread( const char * threadName );
+        bool removeThread( const std::string_view & threadName );
 
         /**
          * \brief   Searches Thread Entry in the existing list of Model
-         *          and returns the zero-based valid position if found. 
+         *          and returns the zero-based valid position if found.
          *          Otherwise, returns -1, if cannot find Thread Entry in Model.
          * \param   entry   The Thread Entry to search in Model.
          * \return  If Entry found, returns valid zero-based index of element.
@@ -1679,25 +1881,25 @@ namespace NERegistry
         int findThread( const NERegistry::ComponentThreadEntry & entry ) const;
 
         /**
-         * \brief   By given name, searches Thread Entry in the existing list of 
+         * \brief   By given name, searches Thread Entry in the existing list of
          *          Model and returns the zero-based valid position if found.
          *          Returns -1, if cannot find Thread Entry in Model.
          * \param   threadName  The Name of Thread Entry to search in Model.
          * \return  If Entry found, returns valid zero-based index of element.
          *          Otherwise, returns -1.
          **/
-        int findThread(const char* threadName) const;
+        int findThread(const std::string_view & threadName) const;
 
         /**
          * \brief   Searches in the list the component by given name. If found, sets component data.
          *          Returns true if found component and the data was successfully set.
          * \param   roleName    The name of component to search in the list.
          * \param   compData    The data to set in component which is passed to create method.
-         * \note    The system automatically does not free manually allocated space. This means that 
+         * \note    The system automatically does not free manually allocated space. This means that
          *          if as a component data a pointer to manually allocated object is passed,
          *          it should be as well manually freed.
          **/
-        bool setComponentData( const char * roleName, NEMemory::uAlign compData );
+        bool setComponentData( const std::string_view & roleName, NEMemory::uAlign compData );
 
     //////////////////////////////////////////////////////////////////////////
     // NERegistry::Model class, Member variables
@@ -1706,7 +1908,7 @@ namespace NERegistry
         /**
          * \brief   The Name of Model
          **/
-        String                  mModelName;
+        std::string             mModelName;
 
         /**
          * \brief   The List of Thread Entries in Model
@@ -1719,13 +1921,17 @@ namespace NERegistry
         bool                    mIsLoaded;
     };
 
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+    #pragma warning(default: 4251)
+#endif  // _MSC_VER
+
 //////////////////////////////////////////////////////////////////////////
 // NERegistry namespace Predefined Invalid Entries.
 //////////////////////////////////////////////////////////////////////////
 
     /**
       * \brief   NERegistry::INVALID_SERVICE_ENTRY
-      *          Predefined invalid Service Entry. 
+      *          Predefined invalid Service Entry.
       **/
      extern AREG_API const NERegistry::ServiceEntry           INVALID_SERVICE_ENTRY;
 
@@ -1789,4 +1995,195 @@ namespace NERegistry
      **/
     extern AREG_API const NERegistry::Model                   INVALID_MODEL;
 
+}
+
+template<typename Entry>
+inline const Entry & NERegistry::TEListBase<Entry>::operator [ ] ( int index ) const
+{
+    ASSERT( (index >=0) && (index < static_cast<int>(mList.size( ))) );
+    return mList[index];
+}
+
+template<typename Entry>
+inline Entry & NERegistry::TEListBase<Entry>::operator [ ] ( int index )
+{
+    ASSERT( (index >=0) && (index < static_cast<int>(mList.size( ))) );
+    return mList[index];
+}
+
+template<typename Entry>
+inline bool NERegistry::TEListBase<Entry>::operator == ( const TEListBase<Entry> & other ) const
+{
+    return (mList == other.mList);
+}
+
+template<typename Entry>
+inline bool NERegistry::TEListBase<Entry>::operator != ( const TEListBase<Entry> & other ) const
+{
+    return (mList != other.mList);
+}
+
+template<typename Entry>
+inline int NERegistry::TEListBase<Entry>::getSize( void ) const
+{
+    return static_cast<int>(mList.size( ));
+}
+
+template<typename Entry>
+inline bool NERegistry::TEListBase<Entry>::isValid( void ) const
+{
+    return (mList.empty( ) == false);
+}
+
+template<typename Entry>
+inline const Entry & NERegistry::TEListBase<Entry>::getEntry( const std::string_view & elemName, const Entry & invalid ) const
+{
+    for ( const auto & entry : mList )
+    {
+        if ( entry.getName() == elemName )
+        {
+            return entry;
+        }
+    }
+
+    return invalid;
+}
+
+template<typename Entry>
+inline int NERegistry::TEListBase<Entry>::findEntry( const std::string_view & elemName ) const
+{
+    int i = 0;
+    for ( const auto & entry : mList )
+    {
+        if ( entry.getName( ) == elemName )
+        {
+            break;
+        }
+
+        ++ i;
+    }
+
+    return (i < static_cast<int>(mList.size( )) ? i : NECommon::INVALID_INDEX);
+}
+
+template<typename Entry>
+inline int NERegistry::TEListBase<Entry>::findEntry( const Entry & elem ) const
+{
+    int i = 0;
+    for ( const auto & entry : mList )
+    {
+        if ( entry == elem )
+        {
+            break;
+        }
+
+        ++ i;
+    }
+
+    return (i < static_cast<int>(mList.size( )) ? i : NECommon::INVALID_INDEX);
+}
+
+template<typename Entry>
+int NERegistry::TEListBase<Entry>::addEntry( const Entry & entry, bool unique /* = true */)
+{
+    int result = NECommon::INVALID_INDEX;
+
+    if (entry.isValid())
+    {
+        if (unique)
+        {
+            result = 0;
+            for ( auto & elem : mList )
+            {
+                if ( elem == entry)
+                {
+                    elem = entry;
+                    break;
+                }
+
+                ++ result;
+            }
+        }
+        else
+        {
+            result = getSize();
+        }
+
+        if (result == static_cast<int>(mList.size()) )
+        {
+            mList.push_back(entry);
+        }
+    }
+
+    return result;
+}
+
+template<typename Entry>
+int NERegistry::TEListBase<Entry>::placeEntry( Entry && entry, bool unique /* = true */)
+{
+    int result = NECommon::INVALID_INDEX;
+
+    if ( entry.isValid( ) )
+    {
+        if ( unique )
+        {
+            result = 0;
+            for ( auto & elem : mList )
+            {
+                if ( elem == entry)
+                {
+                    elem = entry;
+                    break;
+                }
+
+                ++ result;
+            }
+        }
+        else
+        {
+            result = getSize( );
+        }
+
+        if ( result == static_cast<int>(mList.size()) )
+        {
+            mList.emplace_back( entry );
+        }
+    }
+
+    return result;
+}
+
+template<typename Entry>
+bool NERegistry::TEListBase<Entry>::removeEntry( const Entry & entry )
+{
+    bool result = false;
+    for (auto it = mList.cbegin(); it != mList.cend(); ++ it)
+    {
+        if ( *it == entry )
+        {
+            mList.erase(it);
+            result = true;
+            break;
+        }
+    }
+
+    return result;
+}
+
+template<typename Entry>
+bool NERegistry::TEListBase<Entry>::removeEntry( const std::string_view & entryName )
+{
+    bool result = false;
+
+    for ( auto it = mList.cbegin(); it != mList.cend(); ++ it )
+    {
+        if ( it->getName() == entryName )
+        {
+            mList.erase(it);
+            result = true;
+            break;
+        }
+    }
+
+    return result;
 }

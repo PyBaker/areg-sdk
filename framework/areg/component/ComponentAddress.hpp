@@ -82,7 +82,7 @@ public:
      * \param   componentPath   String, containing component path
      * \param   out_nextPart    If not nullptr, on output it will contain remaining part after
      *                          component address in the path.
-     * \return  Returns parsed and instantiated component address object. 
+     * \return  Returns parsed and instantiated component address object.
      *          Verify validation before use.
      **/
     static ComponentAddress convPathToAddress( const char* componentPath, const char ** out_nextPart = nullptr );
@@ -99,7 +99,7 @@ public:
      *          cannot be included in dispatching process.
      **/
     ComponentAddress( const ThreadAddress & threadAddress );
-    
+
     /**
      * \brief	Initialization component.
      *          It creates component by given thread address and role name.
@@ -107,7 +107,7 @@ public:
      * \param	threadAddress	The address of master component thread.
      * \param	roleName	    The role name of component.
      **/
-    ComponentAddress( const ThreadAddress & threadAddress, const char * roleName );
+    ComponentAddress( const ThreadAddress & threadAddress, const std::string & roleName );
 
     /**
      * \brief	Initialization component.
@@ -116,19 +116,18 @@ public:
      *          Use this constructor if Component is created in current
      *          component thread.
      * \param	roleName	The role name of component.
-     * \return	
      **/
-    ComponentAddress( const char * roleName );
+    ComponentAddress( const std::string & roleName );
 
     /**
      * \brief	Initialization component.
      *          It creates component by given role name.
-     *          As a master thread it will search component 
+     *          As a master thread it will search component
      *          thread by given thread name.
      * \param	roleName	The role name of component.
      * \param	nameThread	The thread name of master component thread.
      **/
-    ComponentAddress( const char * roleName, const char * nameThread );
+    ComponentAddress( const std::string & roleName, const std::string & nameThread );
 
     /**
      * \brief   Copy constructor.
@@ -259,7 +258,7 @@ private:
     /**
      * \brief   Component name. Or Role Name of component
      **/
-    String          mRoleName;
+    std::string     mRoleName;
     /**
      * \brief   Thread address object.
      **/
@@ -316,7 +315,7 @@ inline const ThreadAddress& ComponentAddress::getThreadAddress( void ) const
     return mThreadAddress;
 }
 
-inline const String& ComponentAddress::getRoleName( void ) const
+inline const std::string & ComponentAddress::getRoleName( void ) const
 {
     return mRoleName;
 }

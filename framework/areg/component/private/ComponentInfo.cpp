@@ -43,6 +43,13 @@ ComponentInfo::ComponentInfo( ComponentThread& masterThread, const char* roleNam
 {
 }
 
+ComponentInfo::ComponentInfo( ComponentThread& masterThread, const std::string & roleName )
+    : mComponentAddress ( masterThread.getAddress( ), roleName )
+    , mMasterThread     ( masterThread )
+    , mWorkerThreadMap  ( )
+{
+}
+
 //////////////////////////////////////////////////////////////////////////
 // ComponentInfo class, methods
 //////////////////////////////////////////////////////////////////////////

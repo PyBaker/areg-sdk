@@ -9,7 +9,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/base/IEIOStream.hpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform, Input / Output stream interfaces
  *              Following interfaces are defined:
@@ -23,6 +23,15 @@
  * Include files.
  ************************************************************************/
 #include "areg/base/GEGlobal.h"
+
+#include <algorithm>
+#include <array>
+#include <list>
+#include <map>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
 
 /************************************************************************
  * Declared classes
@@ -47,7 +56,7 @@ class IEByteBuffer;
  ************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-// Macros declaration: declare data as streamable, 
+// Macros declaration: declare data as streamable,
 // i.e. available for read and write
 //////////////////////////////////////////////////////////////////////////
 
@@ -185,7 +194,7 @@ public:
      * \param   ascii   The instance of ASCII string object to copy data.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( String & ascii ) const = 0;
+    virtual unsigned int read( std::string & ascii ) const = 0;
 
     /**
      * \brief   Reads string data from input stream object, copies into given wide-string object
@@ -193,7 +202,7 @@ public:
      * \param   ascii   The instance of wide-string object to copy data.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( WideString & wideString ) const = 0;
+    virtual unsigned int read( std::wstring & wideString ) const = 0;
 
     /**
      * \brief   Resets cursor position and moves to the begin of data.
@@ -202,7 +211,7 @@ public:
 
 protected:
     /**
-     * \brief	Returns size in bytes of available data that can read, 
+     * \brief	Returns size in bytes of available data that can read,
      *          i.e. remaining readable size. The returns value is less or equal to
      *          the size of streamable buffer.
      **/
@@ -213,7 +222,7 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 private:
     DECLARE_NOCOPY_NOMOVE( IEInStream );
-}; 
+};
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -283,9 +292,9 @@ public:
 /************************************************************************/
 
      /**
-      * \brief	Writes data to output stream object from given buffer and 
+      * \brief	Writes data to output stream object from given buffer and
       *         returns the size in bytes of written data.
-      * \param	buffer	The pointer to buffer as a data sourse.
+      * \param	buffer	The pointer to buffer as a data source.
       * \param	size	The size in bytes of data buffer.
       * \return	Returns the size in bytes of written data.
       **/
@@ -302,18 +311,20 @@ public:
      /**
       * \brief	Writes data to output stream object from given ASCII-string object and
       *         returns the size in bytes of written data.
-      * \param	ascii	The instance of ASCII-strin object as a data source.
+      * \param	ascii	The instance of ASCII-string object as a data source.
       * \return	Returns the size in bytes of written data.
       **/
-    virtual unsigned int write( const String & ascii )  = 0;
+    virtual unsigned int write( const std::string & ascii )  = 0;
+    virtual unsigned int write( const std::string_view & ascii )  = 0;
 
     /**
      * \brief	Writes data to output stream object from given wide-string object and
      *         returns the size in bytes of written data.
-     * \param	ascii	The instance of wide-strin object as a data source.
+     * \param	ascii	The instance of wide-string object as a data source.
      * \return	Returns the size in bytes of written data.
      **/
-    virtual unsigned int write( const WideString & wideString ) = 0;
+    virtual unsigned int write( const std::string & wideString ) = 0;
+    virtual unsigned int write( const std::wstring_view & wideString ) = 0;
 
     /**
      * \brief	Flushes cached data to output stream object.
@@ -322,7 +333,7 @@ public:
 
 protected:
     /**
-     * \brief	Returns the size in bytes of available space in the stream to write data, 
+     * \brief	Returns the size in bytes of available space in the stream to write data,
      *          i.e. remaining writable size.
      **/
     virtual unsigned int getSizeWritable( void ) const = 0;
@@ -338,7 +349,7 @@ private:
 // IEIOStream class declaration: to read / write data
 //////////////////////////////////////////////////////////////////////////
 /**
- * \brief       Input and Output streaming interface. 
+ * \brief       Input and Output streaming interface.
  **/
 class AREG_API IEIOStream  : public IEInStream
                            , public IEOutStream
@@ -411,17 +422,22 @@ IMPLEMENT_STREAMABLE(double)
 
 inline IEOutStream & operator << (IEOutStream & stream, const char * output)
 {
+    constexpr unsigned int single = static_cast<unsigned int>(sizeof( char ));
+
     if (output != nullptr)
     {
-        constexpr unsigned int single = static_cast<unsigned int>(sizeof(char));
         unsigned int length = 0;
         const char * src = output;
         while (*src ++ != '\0')
         {
             ++ length;
         }
-        
+
         stream.write(reinterpret_cast<const unsigned char *>(output), (length + 1) * single);
+    }
+    else
+    {
+        stream.write( reinterpret_cast<const unsigned char *>(""), 1 * single );
     }
 
     return stream;
@@ -429,9 +445,9 @@ inline IEOutStream & operator << (IEOutStream & stream, const char * output)
 
 inline IEOutStream & operator << (IEOutStream & stream, const wchar_t * output)
 {
+    constexpr unsigned int single = static_cast<unsigned int>(sizeof( wchar_t ));
     if (output != nullptr)
     {
-        constexpr unsigned int single = static_cast<unsigned int>(sizeof(wchar_t));
         unsigned int length = 0;
         const wchar_t * src = output;
         while (*src ++ != L'\0')
@@ -440,6 +456,155 @@ inline IEOutStream & operator << (IEOutStream & stream, const wchar_t * output)
         }
 
         stream.write(reinterpret_cast<const unsigned char *>(output), (length + 1) * single);
+    }
+    else
+    {
+        stream.write( reinterpret_cast<const unsigned char *>(L""), 1 * single );
+    }
+
+    return stream;
+}
+
+inline IEOutStream & operator << ( IEOutStream & stream, const std::string & output )
+{
+    stream.write(output);
+    return stream;
+}
+
+inline IEOutStream & operator << ( IEOutStream & stream, const std::string_view & output )
+{
+    stream.write( output );
+    return stream;
+}
+
+inline IEOutStream & operator << ( IEOutStream & stream, const std::wstring & output )
+{
+    stream.write( output );
+    return stream;
+}
+
+inline const IEInStream & operator >> ( const IEInStream & stream, std::string & input )
+{
+    stream.read(input);
+    return stream;
+}
+
+inline const IEInStream & operator >> ( const IEInStream & stream, std::wstring & input )
+{
+    stream.read( input );
+    return stream;
+}
+
+template<typename V>
+inline IEOutStream & operator << ( IEOutStream & stream, const std::vector<V> & output )
+{
+    stream << static_cast<uint32_t>(output.size());
+    for (const auto & entry : output)
+    {
+        stream << entry;
+    }
+
+    return stream;
+}
+
+template<typename V>
+inline const IEInStream & operator >> ( const IEInStream & stream, std::vector<V> & input )
+{
+    uint32_t count = 0;
+    stream >> count;
+    input.reserve(count);
+    for (uint32_t i = 0; i < count; ++ i)
+    {
+        V entry;
+        stream >> entry;
+    }
+
+    return stream;
+}
+
+template<typename V>
+inline IEOutStream & operator << ( IEOutStream & stream, const std::list<V> & output )
+{
+    stream << static_cast<uint32_t>(output.size( ));
+    for ( const auto & entry : output )
+    {
+        stream << entry;
+    }
+
+    return stream;
+}
+
+template<typename V>
+inline const IEInStream & operator >> ( const IEInStream & stream, std::list<V> & input )
+{
+    uint32_t count = 0;
+    stream >> count;
+    input.reserve( count );
+    for ( uint32_t i = 0; i < count; ++ i )
+    {
+        V entry;
+        stream >> entry;
+    }
+
+    return stream;
+}
+
+template<typename K, typename V>
+IEOutStream & operator << ( IEOutStream & stream, const std::map<K, V> & output )
+{
+    stream << static_cast<uint32_t>(output.size());
+    for ( const auto & [key, value] : output )
+    {
+        stream << key;
+        stream << value;
+    }
+
+    return stream;
+}
+
+template<typename K, typename V>
+inline const IEInStream & operator >> ( const IEInStream & stream, std::map<K, V> & input )
+{
+    uint32_t count = 0;
+    stream >> count;
+    for (uint32_t i = 0; i < count; ++ i)
+    {
+        K key;
+        V value;
+        stream >> key;
+        stream >> value;
+        output[key] = value;
+    }
+
+    return stream;
+}
+
+template<typename K, typename V>
+inline IEOutStream & operator << ( IEOutStream & stream, const std::unordered_map<K, V> & output )
+{
+    stream << static_cast<uint32_t>(output.size());
+
+    for (const auto & [key, value] : output)
+    {
+        stream << key;
+        stream << value;
+    }
+
+    return stream;
+}
+
+template<typename K, typename V>
+inline const IEInStream & operator >> ( const IEInStream & stream, std::unordered_map<K, V> & input )
+{
+    uint32_t count = 0;
+    stream >> count;
+    for (uint32_t i = 0; i < count; ++ i)
+    {
+        K key;
+        V value;
+        stream >> key;
+        stream >> value;
+        input[key] = value;
     }
 
     return stream;

@@ -9,7 +9,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/base/NEMath.hpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform, Basic Math functionalities.
  *              Functions in this namespace are global
@@ -302,7 +302,7 @@ namespace NEMath
      * \param	out_num Large Number to set bits.
      * \param	hi	    High bits to set
      * \param	lo	    Low bits to set
-     * \return	
+     * \return
      **/
     AREG_API void setBits( sLargeInteger & out_num, unsigned int hi, unsigned int lo);
 
@@ -324,7 +324,7 @@ namespace NEMath
 // NEMath namespace utility functions, check-sum operations
 /************************************************************************/
     /**
-     * \brief	Cyclic Redundancy Check (CRC) calculation function on 
+     * \brief	Cyclic Redundancy Check (CRC) calculation function on
      *          standard IEEE 802.3, using lookup table (fast calculate).
      *          Calculates and returns 32-bit CRC value of a binary data in one step.
      * \param	data	Pointer to data to calculate CRC
@@ -334,21 +334,24 @@ namespace NEMath
     AREG_API unsigned int crc32Calculate( const unsigned char * data, int size );
 
      /**
-     * \brief	Cyclic Redundancy Check (CRC) calculation function on 
+     * \brief	Cyclic Redundancy Check (CRC) calculation function on
      *          standard IEEE 802.3, using lookup table (fast calculate).
      *          Calculates and returns 32-bit CRC value of a null-terminated string in one step.
      * \param	strData Pointer to null-terminated string to calculate CRC
      * \return	32-bit value of Cyclic Redundancy Check (CRC)
      **/
    AREG_API unsigned int crc32Calculate( const char * strData  );
+   AREG_API unsigned int crc32Calculate( const std::string & strData );
+
     /**
-     * \brief	Cyclic Redundancy Check (CRC) calculation function on 
+     * \brief	Cyclic Redundancy Check (CRC) calculation function on
      *          standard IEEE 802.3, using lookup table (fast calculate).
      *          Calculates and returns 32-bit CRC value of a null-terminated wide-string in one step.
      * \param	strData Pointer to null-terminated wide-string to calculate CRC
      * \return	32-bit value of Cyclic Redundancy Check (CRC)
      **/
     AREG_API unsigned int crc32Calculate( const wchar_t * strData );
+    AREG_API unsigned int crc32Calculate( const std::wstring & strData );
 
     /**
      * \brief	Return initial 32-bit value of Cyclic Redundancy Check (CRC)
@@ -499,22 +502,22 @@ inline char NEMath::getChar(NEMath::eDigitSign sign)
 /************************************************************************/
 
 inline NEMath::S_LargeInteger::S_LargeInteger( void )
-    : hiBits ( 0 ), loBits ( 0 ) 
+    : hiBits ( 0 ), loBits ( 0 )
 {
 }
 
 inline NEMath::S_LargeInteger::S_LargeInteger( uint32_t hi, uint32_t lo )
-    : hiBits ( hi ), loBits ( lo ) 
+    : hiBits ( hi ), loBits ( lo )
 {
 }
 
 inline NEMath::S_LargeInteger::S_LargeInteger( uint64_t num )
-    : hiBits ( MACRO_64_HI_BYTE32(num) ), loBits ( MACRO_64_LO_BYTE32(num) ) 
+    : hiBits ( MACRO_64_HI_BYTE32(num) ), loBits ( MACRO_64_LO_BYTE32(num) )
 {
 }
 
 inline NEMath::S_LargeInteger::S_LargeInteger( const NEMath::S_LargeInteger & src )
-    : hiBits ( src.hiBits ), loBits ( src.loBits ) 
+    : hiBits ( src.hiBits ), loBits ( src.loBits )
 {
 }
 

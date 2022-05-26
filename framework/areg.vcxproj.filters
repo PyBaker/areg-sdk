@@ -581,9 +581,6 @@
     <ClInclude Include="areg\base\NEUtilities.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="areg\base\TEArrayList.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="areg\base\TEFixedArray.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

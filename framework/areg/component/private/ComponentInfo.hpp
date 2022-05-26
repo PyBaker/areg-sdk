@@ -64,7 +64,7 @@ private:
     using _WorkerThreadMap  = TEHashMap<ThreadAddress, WorkerThread*, const ThreadAddress &, WorkerThread*, _ImplWorkerThreadMap>;
 
     /**
-     * \brief   Resource mapping object type. 
+     * \brief   Resource mapping object type.
      *          As a Key, used thread address (Worker Thread address)
      *          As a value, it saves pointers of Worker Thread object
      *          As a Hash Map used ComponentInfo::_WorkerThreadMap object
@@ -84,6 +84,7 @@ public:
      * \param   roleName        The Role Name of component, must not be empty
      **/
     ComponentInfo( ComponentThread & masterThread, const char * const roleName );
+    ComponentInfo( ComponentThread & masterThread, const std::string & roleName );
 
     /**
      * \brief   Destructor
@@ -107,7 +108,7 @@ public:
     /**
      * \brief   Returns the Role Name of Component
      **/
-    inline const String & getRoleName( void ) const;
+    inline const std::string & getRoleName( void ) const;
 
     /**
      * \brief   Returns true, if specified thread address is the address of registered Worker Thread.
@@ -173,7 +174,7 @@ public:
      * \return  Returns pointer of valid Worker Thread if there is registered
      *          Worker Thread with specified unique name. Otherwise, returns nullptr.
      **/
-    inline WorkerThread * findWorkerThread( const char* threadName ) const;
+    inline WorkerThread * findWorkerThread( const std::string & threadName ) const;
 
     /**
      * \brief   Looks up for Worker Thread by specified unique Component Path,
@@ -186,7 +187,7 @@ public:
      * \return  Returns pointer of valid Worker Thread if there is registered
      *          Worker Thread with extracted unique address. Otherwise, returns nullptr.
      **/
-    inline WorkerThread * findThreadByPath( const char* componentPath ) const;
+    inline WorkerThread * findThreadByPath( const std::string & componentPath ) const;
 
     /**
      * \brief   By specified Event Consumer runtime class ID object, looks up for registered
@@ -293,13 +294,13 @@ inline WorkerThread* ComponentInfo::findWorkerThread( const ThreadAddress& threa
     return mWorkerThreadMap.findResourceObject(threadAddress);
 }
 
-inline WorkerThread* ComponentInfo::findWorkerThread( const char* threadName ) const
+inline WorkerThread* ComponentInfo::findWorkerThread( const std::string & threadName ) const
 {
     Thread* targetThread = Thread::findThreadByName(threadName);
     return (targetThread != nullptr ? findWorkerThread(targetThread->getAddress()) : nullptr);
 }
 
-inline WorkerThread* ComponentInfo::findThreadByPath( const char* componentPath ) const
+inline WorkerThread* ComponentInfo::findThreadByPath( const std::string & componentPath ) const
 {
     ComponentAddress componentAddress = ComponentAddress::convPathToAddress(componentPath);
     return findWorkerThread(componentAddress.getThreadAddress());

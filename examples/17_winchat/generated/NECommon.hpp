@@ -9,10 +9,11 @@
 #include "areg/trace/GETrace.h"
 #include "areg/base/DateTime.hpp"
 #include "areg/base/String.hpp"
-#include "areg/base/TEArrayList.hpp"
 #include "areg/base/TEHashMap.hpp"
 #include "areg/base/NEMemory.hpp"
+
 #include <tchar.h>
+#include <vector>
 
 namespace NECommon
 {
@@ -90,11 +91,11 @@ namespace NECommon
 	 ************************************************************************/
 	struct sConnection
 	{
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// Constructor/ destructor
 	///////////////////////////////////////////////////////////////////////////
-	    
+
 	    /**
 	     * \brief   Every field of structure should have default constructor.
 	     **/
@@ -112,29 +113,29 @@ namespace NECommon
 	     * \brief   Destructor. No extra function is called, every field of structure should be able to be cleaned.
 	     **/
 	    inline ~sConnection( void );
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// Basic operators
 	///////////////////////////////////////////////////////////////////////////
-	    
+
 	    /**
 	     * \brief   Copies data from given source
 	     * \param   src     The source of sConnection structure to copy data.
 	     **/
 	    inline const NECommon::sConnection & operator = ( const NECommon::sConnection & src );
-	    
+
 	    /**
 	     * \brief   Checks equality and returns true if 2 instances of sConnection are equal
 	     * \param   other   The instance of sConnection to compare
 	     * \return  Returns true if 2 instances are equal
-	     **/ 
+	     **/
 	    inline bool operator == ( const NECommon::sConnection & other ) const;
-	    
+
         /**
          * \brief   Checks inequality and returns true if 2 instances of sConnection are not equal
          * \param   other   The instance of sConnection to compare
          * \return  Returns true if 2 instances are not equal
-         **/ 
+         **/
 	    inline bool operator != ( const NECommon::sConnection & other ) const;
 
 	    /**
@@ -146,35 +147,34 @@ namespace NECommon
 	//////////////////////////////////////////////////////////////////////////
 	// sConnection fields
 	///////////////////////////////////////////////////////////////////////////
-	
+
 	    /**
 	     * \brief   The cookie set by server application
          *          Default value is InvalidCookie
 	     **/
 	    uint32_t    cookie;
-    
+
 	    /**
 	     * \brief   Connection client nick name, should be unique
 	     **/
 	    String    nickName;
-    
+
 	    /**
 	     * \brief   Connection request date-time
 	     **/
 	    DateTime  connectTime;
-    
-	    /**
+
+        /**
 	     * \brief   Connection registered / accepted date-time
 	     **/
 	    DateTime  connectedTime;
-    
 	};
 
 	/**
 	 * \brief	NECommon::ListConnections
-	 *			Internal custom type definition of TEArrayList<sConnection, const sConnection &> 
+	 *			Internal custom type definition of std::vector<sConnection>
 	 **/
-    typedef	TEArrayList<sConnection, const sConnection &>		                                    ListConnections;
+    using ListConnections = std::vector<sConnection>;
 
 	/**
 	 * \brief	NECommon::MapConnections
@@ -188,11 +188,11 @@ namespace NECommon
 	 ************************************************************************/
 	struct sParticipant
 	{
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// Constructor/ destructor
 	///////////////////////////////////////////////////////////////////////////
-	    
+
 	    /**
 	     * \brief   Every field of structure should have default constructor.
 	     **/
@@ -206,29 +206,29 @@ namespace NECommon
 	     * \brief   Destructor. No extra function is called, every field of structure should be able to be cleaned.
 	     **/
 	    inline ~sParticipant( void );
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// Basic operators
 	///////////////////////////////////////////////////////////////////////////
-	    
+
 	    /**
 	     * \brief   Copies data from given source
 	     * \param   src     The source of sParticipant structure to copy data.
 	     **/
 	    inline const NECommon::sParticipant & operator = ( const NECommon::sParticipant & src );
-	    
+
 	    /**
 	     * \brief   Checks equality and returns true if 2 instances of sParticipant are equal
 	     * \param   other   The instance of sParticipant to compare
 	     * \return  Returns true if 2 instances are equal
-	     **/ 
+	     **/
 	    inline bool operator == ( const NECommon::sParticipant & other ) const;
-	    
+
         /**
          * \brief   Checks inequality and returns true if 2 instances of sParticipant are not equal
          * \param   other   The instance of sParticipant to compare
          * \return  Returns true if 2 instances are not equal
-         **/ 
+         **/
 	    inline bool operator != ( const NECommon::sParticipant & other ) const;
 
 	    /**
@@ -240,37 +240,36 @@ namespace NECommon
 	//////////////////////////////////////////////////////////////////////////
 	// sParticipant fields
 	///////////////////////////////////////////////////////////////////////////
-	
+
 	    /**
 	     * \brief   DESCRIPTION MISSED
          *          Default value is InvalidSession
 	     **/
 	    uint64_t    sessionId;
-    
-	    /**
+
+        /**
 	     * \brief   DESCRIPTION MISSED
          *          Default value is InvalidCookie
 	     **/
 	    uint32_t    cookie;
-    
+
 	    /**
 	     * \brief   DESCRIPTION MISSED
 	     **/
 	    String    nickName;
-    
 	};
 
-    typedef sParticipant                                                                            sInitiator;
+    typedef sParticipant    sInitiator;
 
 	/**
 	 * \brief	NECommon::ListConnections
-	 *			Internal custom type definition of TEArrayList<sConnection, const sConnection &> 
+	 *			Internal custom type definition of std::vector<sConnection>
 	 **/
-	typedef	TEArrayList<sParticipant, const sParticipant &>		                                    ListParticipants;
+	using ListParticipants = std::vector<sParticipant>;
 
 	/**
 	 * \brief	NECommon::MapDirectConnections
-	 *			Internal custom type definition of TEHashMap<String, PairConnection, const String &, const PairConnection &> 
+	 *			Internal custom type definition of TEHashMap<String, PairConnection, const String &, const PairConnection &>
 	 **/
 	typedef	TEHashMap<sInitiator, ListParticipants, const sInitiator &, const ListParticipants &>   MapParticipants;
 
@@ -334,14 +333,14 @@ inline const NECommon::sConnection & NECommon::sConnection::operator = ( const N
 }
 /**
  * Checks equality of 2 instances of NECommon::sConnection objects.
- **/ 
+ **/
 inline bool NECommon::sConnection::operator == ( const NECommon::sConnection & other ) const
 {
     return  ( this == &other ? true : (this->cookie == other.cookie) && (this->nickName == other.nickName) );
 }
 /**
  * Checks inequality of 2 instances of NECommon::sConnection objects.
- **/ 
+ **/
 inline bool NECommon::sConnection::operator != ( const NECommon::sConnection & other ) const
 {
     return  ( this == &other ? false : (this->cookie != other.cookie) || (this->nickName == other.nickName) );
@@ -394,7 +393,8 @@ inline NECommon::sParticipant::sParticipant( void )
     : sessionId   ( InvalidSession )
     , cookie      ( InvalidCookie )
     , nickName    (  )
-{   ;   }
+{
+}
 /**
  * Every filed of structure should have copy constructor.
  **/
@@ -402,12 +402,14 @@ inline NECommon::sParticipant::sParticipant( const NECommon::sParticipant & src 
     : sessionId   ( src.sessionId )
     , cookie      ( src.cookie )
     , nickName    ( src.nickName )
-{   ;   }
+{
+}
 /**
  * No extra function is called, every field of structure should be able to be cleaned.
  **/
 inline NECommon::sParticipant::~sParticipant( void )
-{   ;   }
+{
+}
 /**
  * Copies data from given source.
  **/
@@ -423,7 +425,7 @@ inline const NECommon::sParticipant & NECommon::sParticipant::operator = ( const
 }
 /**
  * Checks equality of 2 instances of NECommon::sParticipant objects.
- **/ 
+ **/
 inline bool NECommon::sParticipant::operator == ( const NECommon::sParticipant & other ) const
 {
     return  (   this == &other ? true :
@@ -434,7 +436,7 @@ inline bool NECommon::sParticipant::operator == ( const NECommon::sParticipant &
 }
 /**
  * Checks inequality of 2 instances of NECommon::sParticipant objects.
- **/ 
+ **/
 inline bool NECommon::sParticipant::operator != ( const NECommon::sParticipant & other ) const
 {
     return  (   this == &other ? false :

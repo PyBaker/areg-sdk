@@ -23,8 +23,9 @@
 #include "areg/base/SocketServer.hpp"
 #include "areg/base/SocketAccepted.hpp"
 #include "areg/base/TEHashMap.hpp"
-#include "areg/base/TEArrayList.hpp"
 #include "areg/component/NEService.hpp"
+
+#include <vector>
 
 //////////////////////////////////////////////////////////////////////////
 // ServerConnectionBase class declaration.
@@ -70,7 +71,7 @@ protected:
     /**
      * \brief   The list of accepted sockets.
      **/
-    using ListSockets			= TEArrayList<SOCKETHANDLE, const SOCKETHANDLE>;
+    using ListSockets			= std::vector<SOCKETHANDLE>;
 
     /**
      * \brief   The size of master list to listen sockets for incoming messages.

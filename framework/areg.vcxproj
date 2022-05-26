@@ -318,7 +318,6 @@
     <ClInclude Include="areg\component\NERegistry.hpp" />
     <ClInclude Include="areg\component\NEService.hpp" />
     <ClInclude Include="areg\base\NEUtilities.hpp" />
-    <ClInclude Include="areg\base\TEArrayList.hpp" />
     <ClInclude Include="areg\component\private\posix\TimerPosix.hpp" />
     <ClInclude Include="areg\component\TEEvent.hpp" />
     <ClInclude Include="areg\base\TEFixedArray.hpp" />

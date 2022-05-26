@@ -226,13 +226,13 @@ ProxyBase * ProxyBase::findOrCreateProxy( const char * roleName
 }
 
 
-int ProxyBase::findThreadProxies(DispatcherThread & ownerThread, TEArrayList<ProxyBase *, ProxyBase *> & OUT threadProxyList )
+int ProxyBase::findThreadProxies(DispatcherThread & ownerThread, std::vector<ProxyBase *> & OUT threadProxyList )
 {
     ThreadProxyList * proxyList = ProxyBase::_mapThreadProxies.findResource(ownerThread.getName());
     int result = proxyList != nullptr ? proxyList->getSize() : 0;
     if ( result > 0 )
     {
-        threadProxyList = static_cast<const TEArrayList<ProxyBase *, ProxyBase *> &>(*proxyList);
+        threadProxyList = static_cast<const std::vector<ProxyBase *> &>(*proxyList);
     }
 
     return result;
@@ -374,7 +374,7 @@ void ProxyBase::serviceConnectionUpdated( const StubAddress & server, const Chan
 
         // first collect listeners, because on connect / disconnect
         // the listener list might be updated!
-        TEArrayList<ProxyBase::Listener> conListeners;
+        std::vector<ProxyBase::Listener> conListeners;
         int index = 0;
         for (index = 0 ; index < mListenerList.getSize(); ++ index)
         {

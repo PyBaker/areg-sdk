@@ -57,9 +57,14 @@ public:
     ThreadAddress( void );
     /**
      * \brief   Initialization constructor. Sets current process ID and the thread name.
-     * \param   threadID    Thread ID to set.
+     * \param   threadName  The name of the thread.
      **/
     explicit ThreadAddress( const char * threadName );
+    /**
+     * \brief   Initialization constructor. Sets current process ID and the thread name.
+     * \param   threadName  The name of the thread.
+     **/
+    ThreadAddress( const std::string & threadName );
     /**
      * \brief   Copy constructor.
      * \param   src     The source to copy data.

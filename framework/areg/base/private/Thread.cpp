@@ -8,7 +8,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/base/private/Thread.cpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform, Thread class
  *              platform independent code
@@ -70,7 +70,7 @@ unsigned long Thread::_defaultThreadFunction(void* data)
     IEThreadConsumer::eExitCodes result= IEThreadConsumer::eExitCodes::ExitNoParam;
     if (threadObj != nullptr)
     {
-        do 
+        do
         {
             // Check if initialization is completed and ready to run.
             Lock lock(threadObj->mSynchObject);
@@ -115,7 +115,7 @@ ThreadLocalStorage* Thread::_getThreadLocalStorage( Thread* ownThread /*= Thread
     else if ( ownThread != nullptr )
     {
         // called only once, when thread starts.
-        // at that moment the thread local storage object 
+        // at that moment the thread local storage object
         // is not initialized and instantiated yet,
         // and it should be instantiated
         ASSERT(_localStorage == nullptr );
@@ -146,7 +146,7 @@ Thread::Thread(IEThreadConsumer &threadConsumer, const char* threadName /* = nul
     , mThreadConsumer   (threadConsumer)
     , mThreadHandle     (Thread::INVALID_THREAD_HANDLE)
     , mThreadId         (Thread::INVALID_THREAD_ID)
-    , mThreadAddress    (NEString::isEmpty<char>(threadName) == false ? threadName : NEUtilities::generateName(DEFAULT_THREAD_PREFIX.data()).getString())
+    , mThreadAddress    (NEString::isEmpty<char>(threadName) == false ? threadName : NEUtilities::generateName(DEFAULT_THREAD_PREFIX.data()))
     , mThreadPriority   (Thread::eThreadPriority::PriorityUndefined)
     , mIsRunning        ( false )
 
@@ -180,7 +180,7 @@ bool Thread::createThread(unsigned int waitForStartMs /* = NECommon::DO_NOT_WAIT
 {
     bool result = false;
 
-    do 
+    do
     {
         Lock  lock(mSynchObject);
         result = _createSystemThread();
@@ -308,7 +308,7 @@ void Thread::_unregisterThread( void )
     if (_isValidNoLock())
     {
         mThreadConsumer.onThreadUnregistering();
-        
+
         Thread::_mapThreadhHandle.unregisterResourceObject(mThreadHandle);
         Thread::_mapThreadName.unregisterResourceObject(mThreadAddress.getThreadName());
         Thread::_mapThreadId.unregisterResourceObject(mThreadId);

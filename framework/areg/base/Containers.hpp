@@ -18,7 +18,6 @@
 /************************************************************************
  * Include files.
  ************************************************************************/
-#include "areg/base/TEArrayList.hpp"
 #include "areg/base/TEHashMap.hpp"
 #include "areg/base/TELinkedList.hpp"
 #include "areg/base/TERingStack.hpp"
@@ -36,10 +35,6 @@
 //////////////////////////////////////////////////////////////////////////
 // Hierarchy of classes.
 //////////////////////////////////////////////////////////////////////////
-
-/* class TEArrayList */
-    /* StringArray;*/
-        class Tokenizer;
 
 /* class TEHashMap */
     template <typename VALUE, typename VALUE_TYPE, class Implement>
@@ -376,17 +371,17 @@ using ImplPointerList           = TEListImpl<void *>;
 /**
  * \brief   Array of integer elements
  **/
-using IntegerArray  = TEArrayList<unsigned int, unsigned int, ImplIntegerList>;
+using IntegerArray  = std::vector<unsigned int>;
 
 /**
  * \brief   Array of string elements
  **/
-using StringArray   = TEArrayList<String, const String &, ImplStringList>;
+using StringArray   = std::vector<String>;
 
 /**
  * \brief   Array of pointer elements
  **/
-using PointerArray  = TEArrayList<void *, void *, ImplPointerList>;
+using PointerArray  = std::vector<void *>;
 
 /**
  * \brief   Hash Map where keys are values are integers.
@@ -464,7 +459,7 @@ using SortedStringList  = TESortedLinkedList<String, const String &, ImplSortedS
 /**
  * \brief   Class for tokenizing a String.
  **/
-class AREG_API Tokenizer   :   public StringArray
+class AREG_API Tokenizer
 {
 //////////////////////////////////////////////////////////////////////////
 // Constructor / Destructor
@@ -474,7 +469,23 @@ public:
      * \brief   Creates an empty array of string tokens.
      **/
     Tokenizer( void ) = default;
-    
+
+    /**
+     * \brief   Copies entries from given source.
+     * \param   src     The source to copy data.
+     **/
+    Tokenizer( const Tokenizer & src ) = default;
+
+    /**
+     * \brief   Moves entries from given source.
+     * \param   src     The source to move data.
+     **/
+    Tokenizer( Tokenizer && src ) noexcept = default;
+
+    /**
+     * \brief   Destructor.
+     **/
+    ~Tokenizer( void ) = default;
     /**
      * \brief   Gets the string and tokenize according delimiters.
      * \param   str         the String to tokenize
@@ -482,24 +493,15 @@ public:
      * \param   keepEmpty   if two delimiters next to each other specify an empty token
      *                      if false, the result will only contain nonempty tokens
      **/
-    Tokenizer( const String & str, const String & delimiters, bool keepEmpty = true);
+    explicit Tokenizer( const String & str, const String & delimiters, bool keepEmpty = true);
 
-    /**
-     * \brief   Copies entries from given source.
-     * \param   src     The source to copy data.
-     **/
-    Tokenizer( const Tokenizer & src );
+//////////////////////////////////////////////////////////////////////////
+// Operators
+//////////////////////////////////////////////////////////////////////////
 
-    /**
-     * \brief   Moves entries from given source.
-     * \param   src     The source to move data.
-     **/
-    Tokenizer( Tokenizer && src ) noexcept;
+    Tokenizer & operator = ( const Tokenizer & src ) = default;
+    Tokenizer & operator = ( Tokenizer && src ) = default;
 
-    /**
-     * \brief   Destructor.
-     **/
-    ~Tokenizer( void ) = default;
 //////////////////////////////////////////////////////////////////////////
 // Operations
 //////////////////////////////////////////////////////////////////////////
@@ -510,7 +512,28 @@ public:
      * \param   keepEmpty   if two delimiters next to each other specify an empty token
      *                      if false, the result will only contain nonempty tokens
      **/
-    void Tokenize( const String & str, const String & delimiters, bool keepEmpty = true);
+    void tokenize( const String & str, const String & delimiters, bool keepEmpty = true);
+
+    inline int getSize( void ) const;
+
+    inline const String & getAt( int index ) const;
+
+    inline bool isEmpty( void ) const;
+
+protected:
+    /**
+     * \brief   The tokenized array.
+     **/
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+    #pragma warning(disable: 4251)
+#endif  // _MSC_VER
+
+    StringArray     mTokens;
+
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+    #pragma warning(default: 4251)
+#endif  // _MSC_VER
+
 };
 
 /************************************************************************
@@ -604,3 +627,23 @@ TEPointerHashMap<VALUE, VALUE_TYPE, Implement>::TEPointerHashMap( TEPointerHashM
     : TEHashMap<void *, VALUE, void *, VALUE_TYPE, Implement>   ( static_cast<TEHashMap<void *, VALUE, void *, VALUE_TYPE, Implement> &&>(src) )
 {
 }
+
+//////////////////////////////////////////////////////////////////////////
+// Tokenizer class implementation
+//////////////////////////////////////////////////////////////////////////
+
+inline int Tokenizer::getSize( void ) const
+{
+    return static_cast<int>(mTokens.size());
+}
+
+inline const String & Tokenizer::getAt( int index ) const
+{
+    return mTokens[index];
+}
+
+inline bool Tokenizer::isEmpty( void ) const
+{
+    return mTokens.empty();
+}
+

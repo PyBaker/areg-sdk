@@ -23,6 +23,9 @@
 #include "areg/component/NERegistry.hpp"
 #include "areg/base/SynchObjects.hpp"
 
+#include <vector>
+
+
 /************************************************************************
  * \brief   Predefined MACRO to model threads, components and services.
  ************************************************************************/
@@ -109,9 +112,9 @@
  * \brief   Register Component within every Component Thread scope.
  *          This should be called between BEGIN_REGISTER_THREAD
  *          and END_REGISTER_THREAD scope.
- *          Every component registration starts by calling 
+ *          Every component registration starts by calling
  *          BEGIN_REGISTER_COMPONENT and ends by calling END_REGISTER_COMPONENT.
- *          Declare as many components within component scope as needed 
+ *          Declare as many components within component scope as needed
  *          for application. Every declared component will be instantiated
  *          when component thread starts running.
  *
@@ -228,7 +231,7 @@
  *
  *
  *  BEGIN_MODEL("test_model")
- *  
+ *
  *      BEGIN_REGISTER_THREAD("test_thread")
  *
  *          BEGIN_REGISTER_COMPONENT_EX("test_component", TestCompLoad, TestCompUnload)
@@ -271,7 +274,7 @@ class ComponentThread;
 /**
  * \brief   Model creator. A class, which is calling model data creator
  *          function to create model and set in Component Loader class.
- *          The object does not have member functions or variables, 
+ *          The object does not have member functions or variables,
  *          it is created only to load model and plays no additional role.
  **/
 class AREG_API ModelDataCreator
@@ -308,7 +311,7 @@ public:
      * \param   newModel    The new model to add to model loader
      **/
     explicit ModelDataCreator( const NERegistry::Model & newModel );
-    
+
     /**
      * \brief   Destructor.
      **/
@@ -356,7 +359,7 @@ private:
      * \brief   ComponentLoader::ModelList
      *          Linked List of Model objects
      **/
-    using ModelList     = TEArrayList<NERegistry::Model, const NERegistry::Model &>;
+    using ModelList     = std::vector<NERegistry::Model>;
 
 //////////////////////////////////////////////////////////////////////////
 // Static members
@@ -374,7 +377,7 @@ public:
      *          If specified modelName is nullptr, the function will load all Models,
      *          which are not loaded. If name is specified, it will search in Model list
      *          model with specified name and if found, it will load Model.
-     *          The function returns true, if Model is either already loaded or 
+     *          The function returns true, if Model is either already loaded or
      *          loading Model completed with success.
      *          The function returns false, if there is no Model with specified name
      *          or failed loading mode.
@@ -403,7 +406,7 @@ public:
      * \brief   Adds new model to the model list. The name of the new model, names of threads and
      *          services should be unique in the entire system. Otherwise, the model is not added.
      * \param   newModel    The new model to add to the list.
-     * \return  Returns true, if succeeded to add new model to the list. 
+     * \return  Returns true, if succeeded to add new model to the list.
      *          Returns false, if there is already a model, thread or service with the same name
      *          registered in the system.
      **/
@@ -545,8 +548,8 @@ private:
      * \brief   Shuts down threads, specified in Thread List of Registry.
      *          This will automatically delete all registered components
      *          and stop registered worker threads.
-     * \param   whichThreads    The list of registered threads. 
-     *                          Every element contains unique name of thread, 
+     * \param   whichThreads    The list of registered threads.
+     *                          Every element contains unique name of thread,
      *                          which can be found in the system.
      **/
     void shutdownThreads( const NERegistry::ComponentThreadList & whichThreads ) const;
@@ -601,7 +604,7 @@ private:
 #if defined(_MSC_VER) && (_MSC_VER > 1200)
     #pragma warning(default: 4251)
 #endif  // _MSC_VER
-        
+
     /**
      * \brief   The name of default model
      **/

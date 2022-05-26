@@ -8,7 +8,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/base/private/NEUtilities.cpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform Switches
  *
@@ -27,7 +27,7 @@
 /************************************************************************/
 // static local functions
 /************************************************************************/
-namespace NEUtilities 
+namespace NEUtilities
 {
     extern const char * _generateName(const char * prefix, char * out_buffer, int length, const char * specChar);
 
@@ -140,10 +140,10 @@ AREG_API uint64_t NEUtilities::convToTime( const NEUtilities::sFileTime & fileTi
     return static_cast<uint64_t>(li.quadPart);
 }
 
-AREG_API String NEUtilities::createComponentItemName( const char * componentName, const char* itemName )
+AREG_API std::string NEUtilities::createComponentItemName( const std::string & componentName, const std::string & itemName )
 {
-    std::string result = componentName != nullptr ? componentName : "";
-    if ((result.empty() == false) && (NEString::isEmpty<char>(itemName) == false))
+    std::string result = componentName;
+    if (result.empty() == false)
     {
         result += NECommon::COMPONENT_ITEM_SEPARATOR;
         result += itemName;
@@ -155,24 +155,16 @@ AREG_API String NEUtilities::createComponentItemName( const char * componentName
     {
         result    = "";
     }
-    return String(result.c_str());
+
+    return result;
 }
 
-AREG_API String NEUtilities::generateName( const char* prefix )
+AREG_API std::string NEUtilities::generateName( const std::string & prefix )
 {
     char buffer[NEUtilities::MAX_GENERATED_NAME_BUFFER_SIZE];
-    NEUtilities::generateName(prefix, buffer, NEUtilities::MAX_GENERATED_NAME_BUFFER_SIZE);
-    return String(buffer);
-}
+    NEUtilities::_generateName(prefix.c_str(), buffer, NEUtilities::MAX_GENERATED_NAME_BUFFER_SIZE, NECommon::DEFAULT_SPECIAL_CHAR.data( ));
 
-AREG_API const char * NEUtilities::generateName(const char * prefix, char * out_buffer, int length)
-{
-    return NEUtilities::generateName(prefix, out_buffer, length, NECommon::DEFAULT_SPECIAL_CHAR.data());
-}
-
-AREG_API const char * NEUtilities::generateName(const char * prefix, char * out_buffer, int length, const char * specChar)
-{
-    return NEUtilities::_generateName(prefix, out_buffer, length, specChar);
+    return std::string(buffer);
 }
 
 AREG_API unsigned int NEUtilities::generateUniqueId( void )

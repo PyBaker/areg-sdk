@@ -19,9 +19,10 @@
  ************************************************************************/
 #include "areg/base/GEGlobal.h"
 
-#include "areg/base/TEArrayList.hpp"
 #include "areg/component/StubAddress.hpp"
 #include "areg/component/ProxyAddress.hpp"
+
+#include <vector>
 
 /************************************************************************
  * Dependencies
@@ -60,13 +61,13 @@ public:
 /************************************************************************/
 
     /**
-     * \brief   Call to receive list of registered remote stub and proxy services, which connection cookie is equal to 
+     * \brief   Call to receive list of registered remote stub and proxy services, which connection cookie is equal to
      *          specified value. In output out_listStubs and out_lisProxies contain list of remote stub and proxy addresses.
      * \param   cookie          The cookie to filter. Pass NEService::COOKIE_ANY to ignore filtering
      * \param   out_listStubs   On output this will contain list of remote stub addresses connected with specified cookie value.
      * \param   out_lisProxies  On output this will contain list of remote proxy addresses connected with specified cookie value.
      **/
-    virtual void getServiceList( ITEM_ID cookie, TEArrayList<StubAddress, const StubAddress &> & OUT out_listStubs, TEArrayList<ProxyAddress, const ProxyAddress &> & OUT out_lisProxies ) const = 0;
+    virtual void getServiceList( ITEM_ID cookie, std::vector<StubAddress> & OUT out_listStubs, std::vector<ProxyAddress> & OUT out_lisProxies ) const = 0;
 
     /**
      * \brief   Registers remote stub in the current process.

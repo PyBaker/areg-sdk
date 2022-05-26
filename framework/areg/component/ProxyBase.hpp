@@ -9,7 +9,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/component/ProxyBase.hpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform, Proxy Base class.
  *              All Proxy classes should derive from this class and
@@ -23,7 +23,6 @@
  ************************************************************************/
 #include "areg/base/GEGlobal.h"
 #include "areg/base/TEHashMap.hpp"
-#include "areg/base/TEArrayList.hpp"
 #include "areg/base/TELinkedList.hpp"
 #include "areg/base/TEResourceMap.hpp"
 #include "areg/base/TEResourceListMap.hpp"
@@ -33,6 +32,7 @@
 #include "areg/component/NEService.hpp"
 #include "areg/component/StubAddress.hpp"
 
+#include <vector>
 
 /************************************************************************
  * Dependencies
@@ -65,16 +65,16 @@ typedef ProxyBase* (*FuncCreateProxy)( const char* /*roleName*/, DispatcherThrea
 // ProxyBase class declaration
 //////////////////////////////////////////////////////////////////////////
 /**
- * \brief  Proxy Base is a base class for all proxy instantces in the 
- *          application. It provides communication functionalities with 
+ * \brief  Proxy Base is a base class for all proxy instantces in the
+ *          application. It provides communication functionalities with
  *          server, sends and receives notifications. Triggers calls
  *          to dispatch messages and trigger messages of clients.
- * 
+ *
  *          Proxy instances are created one per dispatcher thread.
  *          They remain in the memory as long as there is any client
  *          associated with the proxy. As soon as the last client is
  *          disconnected, the proxy is deleted.
- * 
+ *
  *          The Proxy also tracks request and its response communication
  *          mechanism that the right client gets response notification,
  *          as well as forwards attribute update notification messages
@@ -95,7 +95,7 @@ private:
     // ProxyBase::Listener class declaration
     //////////////////////////////////////////////////////////////////////////
     /**
-     * \brief   This is internal listener class to forward response and 
+     * \brief   This is internal listener class to forward response and
      *          update notification events to clients.
      *          It contains information of message ID, sequence number and
      *          pointer of client object. Every proxy has list of client
@@ -129,7 +129,7 @@ private:
          * \brief   Creates Listener, sets message ID, sequence number and client listener pointer.
          * \param   msgId       Message ID.
          * \param   seqNr       Sequence Number
-         * \param   consumer    Client listener pointer 
+         * \param   consumer    Client listener pointer
          **/
         Listener(unsigned int msgId, unsigned int seqNr, IENotificationEventConsumer * caller);
 
@@ -199,16 +199,16 @@ private:
      * \brief   Proxy Listener List class to save list of listener objects.
      *          Every Proxy class has list of listeners.
      ************************************************************************/
-    using ProxyListenerList = TEArrayList<ProxyBase::Listener, const ProxyBase::Listener &>;
+    using ProxyListenerList = std::vector<ProxyBase::Listener>;
 
     //////////////////////////////////////////////////////////////////////////
     // ProxyBase::ProxyConnectList definition
     //////////////////////////////////////////////////////////////////////////
     /************************************************************************
-     * \brief   Proxy Connected client List class to handle connect and 
+     * \brief   Proxy Connected client List class to handle connect and
      *          disconnect service.
      ************************************************************************/
-    using ProxyConnectList  = TEArrayList<IEProxyListener *, IEProxyListener *>;
+    using ProxyConnectList  = std::vector<IEProxyListener *>;
 
     //////////////////////////////////////////////////////////////////////////
     // ProxyBase::ProxyMap class declaration.
@@ -262,7 +262,7 @@ private:
     /************************************************************************
      * \brief   The list of proxies. Used to save in Map List.
      ************************************************************************/
-    using ThreadProxyList   = TEArrayList<ProxyBase *, ProxyBase *>;
+    using ThreadProxyList   = std::vector<ProxyBase *>;
 
     //////////////////////////////////////////////////////////////////////////
     // ProxyBase::ImplThreadProxyMap internal class declaration
@@ -291,12 +291,21 @@ private:
          **/
         inline void implAddResource( ThreadProxyList & List, ProxyBase * Resource )
         {
+            for ( const ProxyBase * proxy : List )
+            {
+                if (proxy == Resource)
+                {
+                    Resource = nullptr;
+                    break;
+                }
+            }
+
             if ( Resource != nullptr )
             {
-                List.addUnique( Resource );
+                List.push_back(Resource);
             }
         }
-        
+
         /**
          * \brief	Called when need to remove resource object from the list.
          * \param	List        The list of proxy objects.
@@ -304,7 +313,16 @@ private:
          **/
         inline bool implRemoveResource( ThreadProxyList & List, ProxyBase * Resource )
         {
-            return (Resource != nullptr ? List.remove( Resource, 0 ) : false);
+            bool result = false;
+            for ( ThreadProxyList::const_iterator pos = List.begin(); pos != List.end(); ++pos )
+            {
+                if (Resource == *pos)
+                {
+                    result = true;
+                    List.erase(pos);
+                    break;
+                }
+            }
         }
     };
 
@@ -392,7 +410,7 @@ public:
      *          If Proxy already exists, on every call of this function
      *          it will increase reference count.
      * \param   roleName    The role name of server component
-     * \param   serviceName Implemented Service Name. 
+     * \param   serviceName Implemented Service Name.
      *                      Every Service Interface should have name
      * \param   version     The version number of implemented service.
      * \param   connect     The object, which should be notified when
@@ -418,7 +436,7 @@ public:
      *          If Proxy already exists, on every call of this function
      *          it will increase reference count.
      * \param   roleName    The role name of server component
-     * \param   serviceName Implemented Service Name. 
+     * \param   serviceName Implemented Service Name.
      *                      Every Service Interface should have name
      * \param   version     The version number of implemented service.
      * \param   connect     The object, which should be notified when
@@ -443,14 +461,14 @@ public:
     static ProxyBase * findProxyByAddress( const ProxyAddress & proxyAddress );
 
     /**
-     * \brief   Searches all created proxies in the specified thread. On output, the 
+     * \brief   Searches all created proxies in the specified thread. On output, the
      *          parameter 'threadProxyList' contains list of proxies created in the
      *          thread 'ownerThread'.
      * \param   ownerThread     The thread, which proxies should be returned.
      * \param   threadProxyList On output, which contains list of proxies created in specified thread.
      * \return  Returns number of proxies added to the list.
      **/
-    static int findThreadProxies( DispatcherThread & ownerThread, TEArrayList<ProxyBase *, ProxyBase *> & OUT threadProxyList );
+    static int findThreadProxies( DispatcherThread & ownerThread, std::vector<ProxyBase *> & OUT threadProxyList );
 
     /**
      * \brief   Creates the request failure event to send to remote proxy. This may happen when either the request of client
@@ -468,7 +486,7 @@ public:
 //////////////////////////////////////////////////////////////////////////
 protected:
     /**
-     * \brief   Receives the role name of server component and Service Interface 
+     * \brief   Receives the role name of server component and Service Interface
      *          data structure to initialize Proxy internals.
      * \param   roleName        The role name of server component to connect
      * \param   serviceIfData   The Service Interface structure. Every proxy
@@ -489,9 +507,9 @@ protected:
 public:
 
     /**
-     * \brief   Frees Proxy. Every client object which was requesting to 
+     * \brief   Frees Proxy. Every client object which was requesting to
      *          create Proxy object, should call this method to free resources.
-     *          On every request to free Proxy object, this will reduce 
+     *          On every request to free Proxy object, this will reduce
      *          reference counter. And when reference counter is zero,
      *          it will unregister Proxy object in the system, send
      *          disconnect notification to component server object
@@ -527,7 +545,7 @@ protected:
 
     /**
      * \brief   Method derived from IEProxyEventConsumer interface.
-     *          Triggered when on server side a certain Attribute 
+     *          Triggered when on server side a certain Attribute
      *          value has been updated.
      * \param   eventElem   The Service Response event object.
      *                      Contains new updated value of Attribute
@@ -547,8 +565,8 @@ protected:
     virtual ProxyBase::ServiceAvailableEvent * createServiceAvailableEvent( IENotificationEventConsumer & consumer ) = 0;
 
     /**
-     * \brief   Creates notification event to send to client objects. 
-     *          All Notification Events should be internal events and 
+     * \brief   Creates notification event to send to client objects.
+     *          All Notification Events should be internal events and
      *          should be instances of NotificationEvent class.
      *
      *          Overwrite this method.
@@ -560,7 +578,7 @@ protected:
     virtual NotificationEvent * createNotificationEvent( const NotificationEventData & data ) const = 0;
 
     /**
-     * \brief   Create Request event to send to Stub object. 
+     * \brief   Create Request event to send to Stub object.
      *          Request events are triggering request calls on Stub side.
      *
      *          Overwrite this method.
@@ -573,7 +591,7 @@ protected:
 
     /**
      * \brief   Creates event requesting to receive update notification events.
-     *          The caller should be address of current proxy and the target 
+     *          The caller should be address of current proxy and the target
      *          should address of appropriate sub address.
      *
      *          Overwrite this method.
@@ -585,7 +603,7 @@ protected:
     virtual ServiceRequestEvent * createNotificationRequestEvent( unsigned int msgId, NEService::eRequestType reqType ) = 0;
 
     /**
-     * \brief   Overwrite method to create response event from streaming object for 
+     * \brief   Overwrite method to create response event from streaming object for
      *          further dispatching by proxy.
      * \param   stream  Streaming object, which contains event data.
      * \return  If operation succeeds, returns valid pointer to Service Response event object.
@@ -628,7 +646,7 @@ protected:
      * \brief   Triggered, when received server connection status changed.
      * \param   server      The address of connected service stub server.
      * \param   channel     Communication channel object to deliver events.
-     * \param   status      The service connection status. 
+     * \param   status      The service connection status.
      *                      The connection status should be NEService::ServiceConnected
      *                      To be able to send message to service target from Proxy client.
      **/
@@ -766,7 +784,7 @@ protected:
 
     /**
      * \brief   Sends remove all notification event message to Stub and
-     *          stops all notifications. 
+     *          stops all notifications.
      **/
     inline void stopAllServiceNotifications( void );
 
@@ -827,7 +845,7 @@ protected:
     /**
      * \brief   Checks whether there is already listener of Notification Event
      *          exists. If does not exit, adds new listener entry in the listener
-     *          list. If need, send appropriate message to Stub to start 
+     *          list. If need, send appropriate message to Stub to start
      *          sending attribute update messages. If already listener
      *          exists in listener list, sends immediate update notification
      *          based on existing update data status.
@@ -875,19 +893,19 @@ protected:
     /**
      * \brief   Sends request event
      * \param   reqId   The ID of request message. Should be valid ID.
-     * \param   args    The buffer of serialized request call arguments. 
+     * \param   args    The buffer of serialized request call arguments.
      *                  If request has not parameter, this can be Invalid / empty buffer.
-     * \param   caller  The pointer of notification consumer. 
+     * \param   caller  The pointer of notification consumer.
      *                  This parameter can be nullptr only if request has not appropriate response.
      *                  Otherwise this should be valid pointer.
-     * \return  
+     * \return
      **/
     void sendRequestEvent( unsigned int reqId, const EventDataStream & args, IENotificationEventConsumer * caller );
 
     /**
      * \brief   Sends request events to Stub object to start or stop receiving update notifications.
-     * \param   msgId       The message ID to start or stop receiving updates. It should be either attribute ID or response (info). 
-     * \param   reqType     The type of request. Should be either request to 
+     * \param   msgId       The message ID to start or stop receiving updates. It should be either attribute ID or response (info).
+     * \param   reqType     The type of request. Should be either request to
      *                      call function or to get attribute update notification.
      *                      See details in NEService::eRequestType
      **/
@@ -968,8 +986,8 @@ protected:
     DispatcherThread &      mDispatcherThread;
 
     /**
-     * \brief   Proxy instance reference counter. 
-     *          On every request to start Proxy, this counter will 
+     * \brief   Proxy instance reference counter.
+     *          On every request to start Proxy, this counter will
      *          increase value. On request to free Proxy, it will
      *          decrease value. And when reaches zero, will delete
      *          Proxy object.
@@ -1047,7 +1065,7 @@ inline bool ProxyBase::hasNotificationListener(unsigned int msgId) const
 
 inline void ProxyBase::startNotification( unsigned int msgId )
 {
-    if (isConnected()) 
+    if (isConnected())
     {
         sendNotificationRequestEvent( msgId, NEService::eRequestType::StartNotify );
     }
@@ -1055,7 +1073,7 @@ inline void ProxyBase::startNotification( unsigned int msgId )
 
 inline void ProxyBase::stopNotification( unsigned int msgId )
 {
-    if (isConnected()) 
+    if (isConnected())
     {
         sendNotificationRequestEvent( msgId, NEService::eRequestType::StopNotify );
     }
@@ -1063,7 +1081,7 @@ inline void ProxyBase::stopNotification( unsigned int msgId )
 
 inline void ProxyBase::stopAllServiceNotifications( void )
 {
-    if (isConnected()) 
+    if (isConnected())
     {
         sendNotificationRequestEvent( static_cast<unsigned int>(NEService::eFuncIdRange::EmptyFunctionId), NEService::eRequestType::RemoveAllNotify );
     }
@@ -1071,7 +1089,7 @@ inline void ProxyBase::stopAllServiceNotifications( void )
 
 inline void ProxyBase::stopNotifications( const unsigned int notifyIds[], int count )
 {
-    for ( int i = 0; i < count; ++ i ) 
+    for ( int i = 0; i < count; ++ i )
     {
         stopNotification( notifyIds[i] );
     }

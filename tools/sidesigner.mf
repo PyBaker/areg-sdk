@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: com.aregtech.CMFApplication
+Class-Path: jide-action.jar jide-common.jar jide-components.jar jide-dock.jar jide-grids.jar

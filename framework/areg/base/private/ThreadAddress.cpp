@@ -58,6 +58,14 @@ ThreadAddress::ThreadAddress( const char * threadName )
     mMagicNum    = ThreadAddress::_magicNumber(*this);
 }
 
+ThreadAddress::ThreadAddress( const std::string & threadName )
+    : mThreadName   ( threadName.c_str() )
+    , mMagicNum     ( NEMath::CHECKSUM_IGNORE )
+{
+    mThreadName.truncate( NEUtilities::ITEM_NAMES_MAX_LENGTH );
+    mMagicNum    = ThreadAddress::_magicNumber( *this );
+}
+
 ThreadAddress::ThreadAddress( const ThreadAddress & src )
     : mThreadName   ( src.mThreadName )
     , mMagicNum     ( src.mMagicNum )

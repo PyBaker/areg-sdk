@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ServiceInterface FormatVersion="1.0.0">
+    <Overview ID="1" Name="Aregtech" Version="1.1.0" isRemote="true">
+        <Description>Describe your service interface functionality here.
+Can be multiple lines.</Description>
+    </Overview>
+    <DataTypeList>
+        <DataType ID="2" Name="ServiceStructure" Type="Structure">
+            <FieldList>
+                <Field DataType="uint16" ID="3" Name="field1">
+                    <Value IsDefault="true">0</Value>
+                    <Description>aasda</Description>
+                </Field>
+                <Field DataType="int32" ID="4" Name="field2">
+                    <Value IsDefault="true">0</Value>
+                    <Description>sfsafas</Description>
+                </Field>
+                <Field DataType="SomeNamespace::ImportedType" ID="24" Name="field3">
+                    <Value IsDefault="true"/>
+                </Field>
+                <Field DataType="String" ID="25" Name="field4">
+                    <Value IsDefault="true"/>
+                </Field>
+            </FieldList>
+        </DataType>
+        <DataType ID="8" Name="ImportedType" Type="Imported">
+            <Namespace>SomeNamespace</Namespace>
+            <Location>file/path/namespace/SomeNamespace.hpp</Location>
+        </DataType>
+        <DataType ID="9" Name="ServiceMap" Type="DefinedType">
+            <Description>Describe your service specific data type here.
+The description can be multiple lines.</Description>
+            <Container>HashMap</Container>
+            <BaseTypeValue>String</BaseTypeValue>
+            <BaseTypeKey>uint32</BaseTypeKey>
+        </DataType>
+    </DataTypeList>
+    <AttributeList>
+        <Attribute DataType="ServiceStructure" ID="5" Name="ServiceAttribute" Notify="OnChange"/>
+        <Attribute DataType="uint64" ID="6" Name="ServiceData" Notify="Always">
+            <Description>asfahsfasnd</Description>
+        </Attribute>
+        <Attribute DataType="ServiceMap" ID="10" Name="SomeAttribute" Notify="OnChange">
+            <Description>Describe your service attribute here.
+Can be multiple lines.</Description>
+        </Attribute>
+    </AttributeList>
+    <MethodList>
+        <Method ID="11" MethodType="request" Name="ServiceRequest" Response="ServiceResponse">
+            <Description>Describe service request here. Make description for each parameters.</Description>
+            <ParamList>
+                <Parameter DataType="String" ID="12" Name="paramString"/>
+                <Parameter DataType="int32" ID="13" Name="someValue">
+                    <Value IsDefault="true">100</Value>
+                    <Description>Describe parameter, specify the meaning of default value.
+Can be multiple lines.</Description>
+                </Parameter>
+            </ParamList>
+        </Method>
+        <Method ID="14" MethodType="response" Name="ServiceResponse">
+            <Description/>
+            <ParamList>
+                <Parameter DataType="uint16" ID="15" Name="param1"/>
+                <Parameter DataType="double" ID="16" Name="param2"/>
+            </ParamList>
+        </Method>
+        <Method ID="17" MethodType="broadcast" Name="ServiceBroadcast">
+            <Description/>
+            <ParamList>
+                <Parameter DataType="ServiceMap" ID="18" Name="aMap"/>
+                <Parameter DataType="ServiceStructure" ID="20" Name="aStruct"/>
+            </ParamList>
+        </Method>
+        <Method ID="21" MethodType="request" Name="OtherRequest" Response="ServiceResponse">
+            <Description/>
+        </Method>
+        <Method ID="26" MethodType="request" Name="SingleRequest">
+            <Description/>
+        </Method>
+    </MethodList>
+    <ConstantList>
+        <Constant DataType="uint32" ID="22" Name="MaxFileSize">
+            <Value>1024</Value>
+            <Description>Describe your service constant here.</Description>
+        </Constant>
+    </ConstantList>
+    <IncludeList>
+        <Location ID="23" Name="path/special/ServiceSpecialInclude.hpp">
+            <Description>Describe your include here. 
+It can be included as header file as well as data type, which is automatically imported.</Description>
+        </Location>
+    </IncludeList>
+</ServiceInterface>

@@ -156,7 +156,7 @@ void ComponentThread::shutdownComponents( void )
 {
     OUTPUT_DBG("Going to shutdown components in thread [ %s ].", getName().getString());
 
-    TEArrayList<ProxyBase *, ProxyBase *> proxyList;
+    std::vector<ProxyBase *> proxyList;
     ProxyBase::findThreadProxies( self(), proxyList );
     for ( int i = 0; i < proxyList.getSize(); ++ i)
     {

@@ -15,18 +15,18 @@
 #include "generated/NECommon.hpp"
 #include "chatter/NEDistributedApp.hpp"
 
+#include <vector>
+
 class DirectConnectionClient;
 class ChatPrticipantHandler;
 
 class DirectChatService : public Component
                         , public DirectMessagerStub
-                          
 {
 private:
     typedef TEHashMap<String, DirectChatService *, const String &, DirectChatService *>     HashMapDirectConnections;
     typedef TELockResourceMap<String, DirectChatService *, HashMapDirectConnections>            MapDirectConnections;
-    typedef TEArrayList<DirectConnectionClient *>                                                 ListDirectConnectionClients;
-
+    using ListDirectConnectionClients = std::vector<DirectConnectionClient *>;
 
 //////////////////////////////////////////////////////////////////////////
 // Create and delete component

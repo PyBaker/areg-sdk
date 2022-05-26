@@ -8,7 +8,7 @@
  *
  * \copyright   (c) 2017-2021 Aregtech UG. All rights reserved.
  * \file        areg/base/private/BufferStreamBase.cpp
- * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit 
+ * \ingroup     AREG SDK, Asynchronous Event Generator Software Development Kit
  * \author      Artak Avetyan
  * \brief       AREG Platform Raw Buffer class
  *
@@ -165,25 +165,35 @@ unsigned int BufferStreamBase::write( const IEByteBuffer & buffer )
 /**
  * \brief   Writes string data from given ASCII String object to output stream object.
  **/
-unsigned int BufferStreamBase::write( const String & asciiString )
+unsigned int BufferStreamBase::write( const std::string & asciiString )
 {
-    const char * buffer = asciiString.getString();
-    buffer = buffer != NULL_STRING ? buffer : String::EmptyString.data();
-    unsigned int len = static_cast<unsigned int>(asciiString.getLength() + 1);
-
+    unsigned int len = asciiString.length();
+    const char * buffer = asciiString.empty() == false ? asciiString.c_str() : NECommon::EMPTY_STRA.data();
     return write( reinterpret_cast<const unsigned char *>(buffer), len * sizeof(char) );
+}
+
+unsigned int BufferStreamBase::write( const std::string_view & asciiString )
+{
+    unsigned int len = asciiString.length( );
+    const char * buffer = asciiString.empty( ) == false ? asciiString.data( ) : NECommon::EMPTY_STRA.data( );
+    return write( reinterpret_cast<const unsigned char *>(buffer), len * sizeof( char ) );
 }
 
 /**
  * \brief   Writes string data from given wide-char String object to output stream object.
  **/
-unsigned int BufferStreamBase::write( const WideString & wideString )
+unsigned int BufferStreamBase::write( const std::wstring & wideString )
 {
-    const wchar_t * buffer = wideString.getString();
-    buffer = buffer != NULL_STRING_W ? buffer : WideString::EmptyString.data();
-    unsigned int len = static_cast<unsigned int>(wideString.getLength() + 1);
-
+    unsigned int len = wideString.length() + 1;
+    const wchar_t * buffer = wideString.empty() == false ? wideString.c_str() : NECommon::EMPTY_STRW.data();
     return write( reinterpret_cast<const unsigned char *>(buffer), len * sizeof(wchar_t) );
+}
+
+unsigned int BufferStreamBase::write( const std::wstring_view & wideString )
+{
+    unsigned int len = wideString.length( ) + 1;
+    const wchar_t * buffer = wideString.empty( ) == false ? wideString.data( ) : NECommon::EMPTY_STRW.data( );
+    return write( reinterpret_cast<const unsigned char *>(buffer), len * sizeof( wchar_t ) );
 }
 
 /**

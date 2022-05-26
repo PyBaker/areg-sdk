@@ -1,7 +1,6 @@
 #pragma once
 
 #include "areg/base/String.hpp"
-#include "areg/base/TEArrayList.hpp"
 #include "generated/NECommon.hpp"
 #include "chatter/res/resource.h"
 #include "generated/NEConnectionManager.hpp"

@@ -6,22 +6,21 @@
 #include "register/res/resource.h"
 #include "register/NECentralApp.hpp"
 #include "generated/NECommon.hpp"
-#include "areg/base/TEArrayList.hpp"
 
 class PageConnections : public CPropertyPage
 {
 
     static LPCTSTR HEADER_TITILES[];
 
-    typedef enum E_Header
+    enum class eHeader
     {
           NickName  = 0
         , Message
         , SentAt
         , ReceivedAt
-    } eHeader;
+    };
 
-    typedef TEArrayList<NECommon::sMessageData *>   TypingList;
+    using TypingList = std::vector<NECommon::sMessageData *>;
 
 DECLARE_DYNAMIC(PageConnections)
 

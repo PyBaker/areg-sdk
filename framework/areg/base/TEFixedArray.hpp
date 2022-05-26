@@ -30,10 +30,10 @@
 //////////////////////////////////////////////////////////////////////////
 /**
  * \brief   Fixed Array has general functionalities to access and copy elements
- *          by valid index. Fixed Array is similar to TEArrayList<VALUE, VALUE_TYPE>
- *          except that it does not support insert or remove element(s) and does not
- *          change the initial size of, unless it is not assigned or moved from
- *          another source
+ *          by valid index. Unlike std::vector, the size or array cannot be changed,
+ *          but unlike std::array, the size is not predefined at compile time.
+ *          Fixed Array size is determined during runtime and the size remains
+ *          unchanged.
  *
  *          The type VALUE should have at least default constructor and applicable
  *          assigning operator. By default VALUE_TYPE is equal to type VALUE.

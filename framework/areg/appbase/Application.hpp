@@ -136,7 +136,7 @@ public:
      * \brief   Stops and unloads specified model. If model name nullptr or empty, all models are stopped and unloaded.
      *          The services like Service Manager, Tracing, Routing and Timer Manager are not stopped.
      * \param   modelName   The unique name of model to stop. Or nullptr if all models should be unloaded and stopped.
-     * 
+     *
      * \example     Start and Stop all models
      *          // This example starts all services, loads all models. 1 second later stops and unloads all models,
      *          // stop all services, release all resources:
@@ -165,9 +165,9 @@ public:
     static void setWorkingDirectory( const char * dirPath = nullptr );
 
     /**
-     * \brief   Call to configure tracing. 
+     * \brief   Call to configure tracing.
      * \param   configFile  Tracing configuration file path. Can also be relative path.
-     *                      If nullptr or empty, default configuration file will be 
+     *                      If nullptr or empty, default configuration file will be
      *                      loaded (NEApplication::DEFAULT_TRACING_CONFIG_FILE).
      * \return  Returns true if succeeded to configure tracing.
      **/

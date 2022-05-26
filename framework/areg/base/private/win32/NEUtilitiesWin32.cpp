@@ -26,7 +26,7 @@
 namespace NEUtilities {
 
     /**
-     * \brief   Generates a name, sets the timestapt of now.
+     * \brief   Generates a name, sets the timestamp of now.
      *
      * \param   prefix          The prefix to add to name.
      * \param   out_buffer[out] On output, this contains the result.
