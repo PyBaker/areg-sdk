@@ -240,9 +240,6 @@
     <ClCompile Include="areg\base\private\SocketServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="areg\base\private\String.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="areg\base\private\RuntimeBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -504,9 +501,6 @@
     <ClCompile Include="areg\appbase\private\NEApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="areg\base\private\WideString.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="areg\base\private\win32\NEDebugWin32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -747,9 +741,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="areg\base\Object.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="areg\base\String.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="areg\base\Thread.hpp">
@@ -1017,9 +1008,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="areg\base\private\posix\SpinLockIX.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="areg\base\WideString.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="areg\trace\private\LogConfiguration.hpp">

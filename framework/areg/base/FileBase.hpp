@@ -21,14 +21,11 @@
 #include "areg/base/IEIOStream.hpp"
 #include "areg/base/IECursorPosition.hpp"
 
-#include "areg/base/String.hpp"
 #include "areg/base/private/ReadConverter.hpp"
 #include "areg/base/private/WriteConverter.hpp"
 
 #include <string_view>
 
-class String;
-class WideString;
 class IEByteBuffer;
 
 //////////////////////////////////////////////////////////////////////////
@@ -206,7 +203,7 @@ public:
      * \param   ascii   The ASCII string to write.
      * \return  The instance of file.
      **/
-    friend inline FileBase & operator << (FileBase & stream, const String & ascii );
+    friend inline FileBase & operator << (FileBase & stream, const std::string & ascii );
 
     /**
      * \brief   Inputs wide-char string to the file.
@@ -226,7 +223,7 @@ public:
      * \param   wide    The wide-char string to write.
      * \return  The instance of file.
      **/
-    friend inline FileBase & operator << (FileBase & stream, const WideString & wide );
+    friend inline FileBase & operator << (FileBase & stream, const std::wstring & wide );
 
     /**
      * \brief   Writes files data as ASCII string. The file outputs string until reaches end of file,
@@ -234,7 +231,7 @@ public:
      * \param   stream  The instance of file data contains the data.
      * \param   ascii   On output, this contains the ASCII string data.
      **/
-    friend inline const FileBase & operator >> ( const FileBase & stream, String & OUT ascii );
+    friend inline const FileBase & operator >> ( const FileBase & stream, std::string & OUT ascii );
 
     /**
      * \brief   Writes files data as wide-char string. The file outputs string until reaches end of file,
@@ -242,7 +239,7 @@ public:
      * \param   stream  The instance of file data contains the data.
      * \param   ascii   On output, this contains the wide-char string data.
      **/
-    friend inline const FileBase & operator >> ( const FileBase & stream, WideString & OUT wide );
+    friend inline const FileBase & operator >> ( const FileBase & stream, std::wstring & OUT wide );
 
     //////////////////////////////////////////////////////////////////////////
 // Attributes and operations
@@ -263,7 +260,7 @@ public:
      *          or normalized full path. Can be empty string for buffered file.
      * \return  Returns the given name of file.
      **/
-    inline const String & getName( void ) const;
+    inline const std::string & getName( void ) const;
 
     /**
      * \brief   Returns the file open mode (bits)
@@ -524,13 +521,13 @@ public:
      * \param	outBuffer	The string containing data
      * \return	Returns number of characters, which could read.
      **/
-    int readString(String & outBuffer) const;
+    int readString(std::string & outBuffer) const;
     /**
      * \brief	Read string until end of file or null-terminated character. It does not validate string data
      * \param	outBuffer	The string containing data
      * \return	Returns number of characters, which could read.
      **/
-    int readString(WideString & outBuffer) const;
+    int readString(std::wstring & outBuffer) const;
 
     /**
      * \brief	Reads line of string of 8-bit characters, automatically sets null-terminate char at the end and returns number of characters, which could 
@@ -553,14 +550,14 @@ public:
      * \param	outValue	The string containing data
      * \return	If succeeds, returns true.
      **/
-    int readLine(String & outValue) const;
+    int readLine(std::string & outValue) const;
     /**
      * \brief	Reads 1 line of string until end of file or null-terminated character or new line character. 
      *          It does not validate string data
      * \param	outValue	The string containing data
      * \return	If succeeds, returns true.
      **/
-    int readLine(WideString & outValue) const;
+    int readLine(std::wstring & outValue) const;
 
     /**
      * \brief	Writes string in file and returns true if succeeded.
@@ -719,20 +716,20 @@ public:
     virtual unsigned int read( IEByteBuffer & buffer ) const override;
 
     /**
-     * \brief   Reads string data from Input Stream object and copies into given ASCII String.
+     * \brief   Reads string data from Input Stream object and copies into given ASCII string.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   asciiString     The buffer of ASCII String to stream data from Input Stream object.
+     * \param   asciiString     The buffer of ASCII string to stream data from Input Stream object.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( String & asciiString ) const override;
+    virtual unsigned int read( std::string & asciiString ) const override;
 
     /**
-     * \brief   Reads string data from Input Stream object and copies into given Wide String.
+     * \brief   Reads string data from Input Stream object and copies into given wide-string.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   wideString      The buffer of Wide String to stream data from Input Stream object.
+     * \param   wideString      The buffer of wide-string to stream data from Input Stream object.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( WideString & wideString ) const override;
+    virtual unsigned int read( std::wstring & wideString ) const override;
 
 /************************************************************************/
 // IEOutStream interface overrides
@@ -747,20 +744,20 @@ public:
     virtual unsigned int write( const IEByteBuffer & buffer ) override;
 
     /**
-     * \brief   Writes string data from given ASCII String object to output stream object.
+     * \brief   Writes string data from given ASCII string object to output stream object.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   asciiString     The buffer of String containing data to stream to Output Stream.
+     * \param   asciiString     The buffer of string containing data to stream to Output Stream.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int write( const String & asciiString ) override;
+    virtual unsigned int write( const std::string & asciiString ) override;
 
     /**
-     * \brief   Writes string data from given wide-char String object to output stream object.
+     * \brief   Writes string data from given wide string object to output stream object.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   wideString  The buffer of String containing data to stream to Output Stream.
+     * \param   wideString  The buffer of wide string containing data to stream to Output Stream.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int write( const WideString & wideString ) override;
+    virtual unsigned int write( const std::wstring & wideString ) override;
 
     /**
      * \brief   Clears the buffers for the file and causes all buffered data 
@@ -790,17 +787,24 @@ protected:
      * \brief   Normalizes the name, replace special masks such as timestamp or process name in the give name.
      * \param[out]  name    On output, contains normalized name of file.
      **/
-    static void normalizeName( String & OUT name );
+    static void normalizeName( std::string & OUT name );
 
 //////////////////////////////////////////////////////////////////////////
 // Member variables
 //////////////////////////////////////////////////////////////////////////
 
 protected:
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+    #pragma warning(disable: 4251)
+#endif  // _MSC_VER
     /**
      * \brief   Absolute or relative file path
      **/
-    String          mFileName;
+    std::string     mFileName;
+
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+    #pragma warning(default: 4251)
+#endif  // _MSC_VER
 
     /**
      * \brief   File open mode
@@ -850,7 +854,7 @@ inline const FileBase & FileBase::self( void ) const
     return (*this);
 }
 
-inline const String & FileBase::getName( void ) const
+inline const std::string & FileBase::getName( void ) const
 {
     return mFileName;
 }
@@ -1033,7 +1037,7 @@ inline FileBase & operator << ( FileBase & stream, const char * ascii )
     return stream;
 }
 
-inline FileBase & operator << ( FileBase & stream, const String & ascii )
+inline FileBase & operator << ( FileBase & stream, const std::string & ascii )
 {
     stream.write( ascii );
     return stream;
@@ -1045,19 +1049,19 @@ inline FileBase & operator << ( FileBase & stream, const wchar_t * wide )
     return stream;
 }
 
-inline FileBase & operator << ( FileBase & stream, const WideString & wide )
+inline FileBase & operator << ( FileBase & stream, const std::wstring & wide )
 {
     stream.write( wide );
     return stream;
 }
 
-inline const FileBase & operator >> ( const FileBase & stream, String & OUT ascii )
+inline const FileBase & operator >> ( const FileBase & stream, std::string & OUT ascii )
 {
     stream.read(ascii);
     return stream;
 }
 
-inline const FileBase & operator >> ( const FileBase & stream, WideString & OUT wide )
+inline const FileBase & operator >> ( const FileBase & stream, std::wstring & OUT wide )
 {
     stream.read(wide);
     return stream;

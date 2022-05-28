@@ -16,7 +16,6 @@
 
 #include "areg/base/FileBase.hpp"
 #include "areg/base/NEUtilities.hpp"
-#include "areg/base/WideString.hpp"
 #include "areg/base/IEByteBuffer.hpp"
 #include "areg/base/DateTime.hpp"
 #include "areg/base/Process.hpp"
@@ -259,7 +258,7 @@ FileBase::FileBase( void )
     : IEIOStream        ( )
     , IECursorPosition  ( )
 
-    , mFileName         (String::EmptyString.data())
+    , mFileName         (NECommon::EMPTY_STRA.data())
     , mFileMode         (static_cast<unsigned int>(FO_MODE_INVALID))
     , mReadConvert      (static_cast<IEInStream &>(self()), static_cast<IECursorPosition &>(self()) )
     , mWriteConvert     (static_cast<IEOutStream &>(self()), static_cast<IECursorPosition &>(self()) )
@@ -387,14 +386,14 @@ int FileBase::readString( wchar_t * buffer, int elemCount ) const
     return _readString<wchar_t>(self(), buffer, elemCount);
 }
 
-int FileBase::readString(String & outValue ) const
+int FileBase::readString(std::string & outValue ) const
 {
-    return _readString<char, String>(self(), outValue);
+    return _readString<char, std::string>(self(), outValue);
 }
 
-int FileBase::readString(WideString & outValue) const
+int FileBase::readString(std::wstring& outValue) const
 {
-    return _readString<char, WideString>(self(), outValue);
+    return _readString<char, std::wstring>(self(), outValue);
 }
 
 int FileBase::readLine( char * buffer, int elemCount) const
@@ -407,14 +406,14 @@ int FileBase::readLine( wchar_t * buffer, int elemCount ) const
     return _readLine<wchar_t>(self(), buffer, elemCount);
 }
 
-int FileBase::readLine( String & outValue) const
+int FileBase::readLine(std::string & outValue) const
 {
-    return _readLine<char, String>(self(), outValue);
+    return _readLine<char, std::string>(self(), outValue);
 }
 
-int FileBase::readLine(WideString & outValue) const
+int FileBase::readLine(std::wstring & outValue) const
 {
-    return _readLine<wchar_t, WideString>(self(), outValue);
+    return _readLine<wchar_t, std::wstring>(self(), outValue);
 }
 
 bool FileBase::writeString( const char* inValue )
@@ -486,28 +485,28 @@ unsigned int FileBase::read(IEByteBuffer & buffer) const
             }
             else
             {
-                OUTPUT_ERR("Either was not able to reserve [ %d ] bytes of space, or failed read file [ %s ].", sizeReserve, mFileName.getString());
+                OUTPUT_ERR("Either was not able to reserve [ %d ] bytes of space, or failed read file [ %s ].", sizeReserve, mFileName.c_str());
             }
         }
         else
         {
-            OUTPUT_ERR("Unable to read the size of byte-buffer, the file [ %s ]", mFileName.getString());
+            OUTPUT_ERR("Unable to read the size of byte-buffer, the file [ %s ]", mFileName.c_str());
         }
     }
     else
     {
-        OUTPUT_ERR("Either file [ %s ] is not opened [ %s ], or reading mode is not set (mode = [ %d ]).", mFileName.getString(), isOpened() ? "true" : "false", mFileMode);
+        OUTPUT_ERR("Either file [ %s ] is not opened [ %s ], or reading mode is not set (mode = [ %d ]).", mFileName.c_str(), isOpened() ? "true" : "false", mFileMode);
     }
 
     return result;
 }
 
-unsigned int FileBase::read(String & asciiString) const
+unsigned int FileBase::read(std::string & asciiString) const
 {
     return static_cast<unsigned int>(readString(asciiString));
 }
 
-unsigned int FileBase::read(WideString & wideString) const
+unsigned int FileBase::read(std::wstring & wideString) const
 {
     return static_cast<unsigned int>(readString(wideString));
 }
@@ -527,29 +526,29 @@ unsigned int FileBase::write(const IEByteBuffer & buffer)
         }
         else
         {
-            OUTPUT_ERR("Failed to write [ %d ] bytes of data in file [ %s ]", sizeUsed + sizeof(int), mFileName.getString());
+            OUTPUT_ERR("Failed to write [ %d ] bytes of data in file [ %s ]", sizeUsed + sizeof(int), mFileName.c_str());
         }
     }
     else
     {
-        OUTPUT_ERR("Either files [ %s ] is not opened or it is not opened to write file", mFileName.getString());
+        OUTPUT_ERR("Either files [ %s ] is not opened or it is not opened to write file", mFileName.c_str());
     }
 
     return result;
 }
 
-unsigned int FileBase::write(const String & asciiString)
+unsigned int FileBase::write(const std::string & asciiString)
 {
-    const char * buffer = asciiString.getString();
-    unsigned int space  = isTextMode() != 0 ? asciiString.getLength() * sizeof(char) : asciiString.getUsedSpace();
+    const char * buffer = asciiString.c_str();
+    unsigned int space  = (asciiString.length() + (isTextMode() ? 0 : 1)) * sizeof(char);
 
     return write(reinterpret_cast<const unsigned char *>(buffer), space);
 }
 
-unsigned int FileBase::write(const WideString & wideString)
+unsigned int FileBase::write(const std::wstring& wideString)
 {
-    const wchar_t * buffer  = wideString.getString();
-    unsigned int space      = isTextMode() != 0 ? wideString.getLength() * sizeof(wchar_t) : wideString.getUsedSpace();
+    const wchar_t * buffer  = wideString.c_str();
+    unsigned int space      = (wideString.length() + (isTextMode() ? 0 : 1)) * sizeof(wchar_t);
 
     return write(reinterpret_cast<const unsigned char *>(buffer), space);
 }
@@ -569,7 +568,7 @@ void FileBase::flush(void)
     ; // do nothing
 }
 
-void FileBase::normalizeName(String & name)
+void FileBase::normalizeName(std::string& name)
 {
     // replace all "%time%"
     char fmt[32];

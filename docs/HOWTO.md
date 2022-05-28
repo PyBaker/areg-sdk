@@ -121,7 +121,7 @@ To compile Windows versions of projects, use Visual Studio 2019 or higher to ope
     - **Win32** or **x64** in _Solution Platform_ to build 32- or 64-bit binaries.
     - **dbg_vc142** or **rls_vc142** in  _Solution Configuration_ to build Debug or Release configuration.
 
-We have taken the advantage of Visual Studio property files and have chosen this behaviour of _Solution Configuration_ to escape changing the PlatformToolset settings in project files if a team works with different versions of Visual Studio. If you need to support newer versions of Visual Studio, register the _Platform_, _Configuration_ and _PlatformToolset_ in the **config_compile.props** file located in _areg-sdk_ and update _areg-sdk_ solution file.
+We have taken the advantage of Visual Studio property files and have chosen this behavior of _Solution Configuration_ to escape changing the PlatformToolset settings in project files if a team works with different versions of Visual Studio. If you need to support newer versions of Visual Studio, register the _Platform_, _Configuration_ and _PlatformToolset_ in the **config_compile.props** file located in _areg-sdk_ and update _areg-sdk_ solution file.
 
 > 💡 **Note:** _You'll get error if you choose the compiler version, which does not exist in your system!_ 
 

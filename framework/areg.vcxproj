@@ -66,7 +66,6 @@
     <ClCompile Include="areg\base\private\posix\NEDebugPosix.cpp" />
     <ClCompile Include="areg\base\private\posix\NESocketPosix.cpp" />
     <ClCompile Include="areg\base\private\posix\NEUtilitiesPosix.cpp" />
-    <ClCompile Include="areg\base\private\WideString.cpp" />
     <ClCompile Include="areg\base\private\win32\FileWin32.cpp" />
     <ClCompile Include="areg\base\private\win32\NEDebugWin32.cpp" />
     <ClCompile Include="areg\base\private\win32\ProcessWin32.cpp" />
@@ -90,7 +89,6 @@
     <ClCompile Include="areg\base\private\RuntimeClassID.cpp" />
     <ClCompile Include="areg\base\private\RuntimeObject.cpp" />
     <ClCompile Include="areg\base\private\SharedBuffer.cpp" />
-    <ClCompile Include="areg\base\private\String.cpp" />
     <ClCompile Include="areg\base\private\Thread.cpp" />
     <ClCompile Include="areg\base\private\ThreadLocalStorage.cpp" />
     <ClCompile Include="areg\base\private\Version.cpp" />
@@ -235,7 +233,6 @@
     <ClInclude Include="areg\base\TEResourceListMap.hpp" />
     <ClInclude Include="areg\base\TERingStack.hpp" />
     <ClInclude Include="areg\base\TEString.hpp" />
-    <ClInclude Include="areg\base\WideString.hpp" />
     <ClInclude Include="areg\component\private\ClientInfo.hpp" />
     <ClInclude Include="areg\component\private\ClientList.hpp" />
     <ClInclude Include="areg\component\Component.hpp" />
@@ -282,7 +279,6 @@
     <ClInclude Include="areg\component\ServiceResponseEvent.hpp" />
     <ClInclude Include="areg\base\SharedBuffer.hpp" />
     <ClInclude Include="areg\component\StreamableEvent.hpp" />
-    <ClInclude Include="areg\base\String.hpp" />
     <ClInclude Include="areg\component\StubAddress.hpp" />
     <ClInclude Include="areg\component\StubBase.hpp" />
     <ClInclude Include="areg\base\SynchObjects.hpp" />

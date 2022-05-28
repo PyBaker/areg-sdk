@@ -270,7 +270,7 @@ public:
      *  next = test.Substr(result, " ", next);      // results: next == 5, result == "0123"
      *  next = test.Substr(result, " ", next);      // results: next == 9, result == "456"
      *  next = test.Substr(result, " ", next);      // results: next == NEString::INVALID_POS, result == "0123"
-     * \endcode
+     *
      **/
     NEString::CharPos substring( TEString<CharType, Helper> & outResult, const CharType * strPhrase, NEString::CharPos startPos = NEString::START_POS ) const;
 
@@ -874,7 +874,96 @@ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
-// Template class TEString Helperation
+// Template class TEString 
+//////////////////////////////////////////////////////////////////////////
+
+template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
+inline TEString<CharType, Helper>::TEString(void)
+    : mData(NEString::initString<CharType>(static_cast<NEString::CharCount>(0)))
+    , mHelper()
+#ifdef DEBUG
+    , mString(mData->strBuffer)
+#endif // DEBUG
+{
+}
+
+template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
+inline TEString<CharType, Helper>::TEString(CharType ch)
+    : mData(NEString::initString<CharType, CharType>(&ch, 1))
+    , mHelper()
+#ifdef DEBUG
+    , mString(mData->strBuffer)
+#endif // DEBUG
+{
+}
+
+template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
+inline TEString<CharType, Helper>::TEString(const CharType* strSource)
+    : mData(NEString::initString<CharType, CharType>(strSource, NEString::COUNT_ALL))
+    , mHelper()
+#ifdef DEBUG
+    , mString(mData->strBuffer)
+#endif // DEBUG
+{
+}
+
+template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
+inline TEString<CharType, Helper>::TEString(const CharType* strSource, NEString::CharCount charCount)
+    : mData(NEString::initString<CharType, CharType>(strSource, charCount))
+    , mHelper()
+#ifdef DEBUG
+    , mString(mData->strBuffer)
+#endif // DEBUG
+{
+}
+
+template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
+inline TEString<CharType, Helper>::TEString(const NEString::SString<CharType>& strSource)
+    : mData(NEString::initString<CharType, CharType>(strSource))
+    , mHelper()
+#ifdef DEBUG
+    , mString(mData->strBuffer)
+#endif // DEBUG
+{
+}
+
+template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
+inline TEString<CharType, Helper>::TEString(const TEString<CharType, Helper>& strSource)
+    : mData(NEString::initString<CharType, CharType>(strSource.getDataString()))
+    , mHelper()
+#ifdef DEBUG
+    , mString(mData->strBuffer)
+#endif // DEBUG
+{
+}
+
+template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
+inline TEString<CharType, Helper>::TEString(TEString<CharType, Helper>&& strSource)
+    : mData(strSource.mData)
+    , mHelper()
+#ifdef DEBUG
+    , mString(mData->strBuffer)
+#endif // DEBUG
+{
+    strSource.mData = nullptr;
+#ifdef DEBUG
+    strSource.mString = nullptr;
+#endif // DEBUG
+
+}
+
+template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
+TEString<CharType, Helper>::~TEString(void)
+{
+    NEString::releaseSpace<CharType>(mData);
+    mData = NEString::getInvalidString<CharType>();
+#ifdef DEBUG
+    mString = mData->strBuffer;
+#endif // DEBUG
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Template class TEString member functions
 //////////////////////////////////////////////////////////////////////////
 
 template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
@@ -1077,91 +1166,6 @@ inline void TEString<CharType, Helper>::release( void )
     NEString::releaseSpace<CharType>( mData );
     mData   = NEString::getInvalidString<CharType>( );
 
-#ifdef DEBUG
-    mString = mData->strBuffer;
-#endif // DEBUG
-}
-
-template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
-inline TEString<CharType, Helper>::TEString( void )
-    : mData     ( NEString::initString<CharType>(static_cast<NEString::CharCount>(0) ) )
-    , mHelper   ( )
-#ifdef DEBUG
-    , mString   ( mData->strBuffer )
-#endif // DEBUG
-{
-}
-
-template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
-inline TEString<CharType, Helper>::TEString( CharType ch )
-    : mData     ( NEString::initString<CharType, CharType>(&ch, 1) )
-    , mHelper   ( )
-#ifdef DEBUG
-    , mString   ( mData->strBuffer )
-#endif // DEBUG
-{
-}
-
-template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
-inline TEString<CharType, Helper>::TEString( const CharType * strSource )
-    : mData     ( NEString::initString<CharType, CharType>(strSource, NEString::COUNT_ALL) )
-    , mHelper   ( )
-#ifdef DEBUG
-    , mString   ( mData->strBuffer )
-#endif // DEBUG
-{
-}
-
-template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
-inline TEString<CharType, Helper>::TEString( const CharType * strSource, NEString::CharCount charCount )
-    : mData     ( NEString::initString<CharType, CharType>(strSource, charCount) )
-    , mHelper   ( )
-#ifdef DEBUG
-    , mString   ( mData->strBuffer )
-#endif // DEBUG
-{
-}
-
-template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
-inline TEString<CharType, Helper>::TEString( const NEString::SString<CharType> & strSource )
-    : mData     ( NEString::initString<CharType, CharType>(strSource) )
-    , mHelper   ( )
-#ifdef DEBUG
-    , mString   ( mData->strBuffer )
-#endif // DEBUG
-{
-}
-
-template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
-inline TEString<CharType, Helper>::TEString( const TEString<CharType, Helper> & strSource )
-    : mData     ( NEString::initString<CharType, CharType>( strSource.getDataString() ) )
-    , mHelper   ( )
-#ifdef DEBUG
-    , mString   ( mData->strBuffer )
-#endif // DEBUG
-{
-}
-
-template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
-inline TEString<CharType, Helper>::TEString( TEString<CharType, Helper> && strSource )
-    : mData     ( strSource.mData )
-    , mHelper   ( )
-#ifdef DEBUG
-    , mString   ( mData->strBuffer )
-#endif // DEBUG
-{
-    strSource.mData     = nullptr;
-#ifdef DEBUG
-    strSource.mString   = nullptr;
-#endif // DEBUG
-
-}
-
-template<typename CharType, class Helper /*= TEStringImpl<CharType>*/>
-TEString<CharType, Helper>::~TEString( void )
-{
-    NEString::releaseSpace<CharType>(mData);
-    mData = NEString::getInvalidString<CharType>();
 #ifdef DEBUG
     mString = mData->strBuffer;
 #endif // DEBUG

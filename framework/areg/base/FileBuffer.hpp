@@ -20,7 +20,6 @@
  * Include files.
  ************************************************************************/
 #include "areg/base/FileBase.hpp"
-#include "areg/base/String.hpp"
 #include "areg/base/SharedBuffer.hpp"
 #include "areg/base/NEMemory.hpp"
 
@@ -244,20 +243,20 @@ public:
     virtual unsigned int read( IEByteBuffer & buffer ) const override;
 
     /**
-     * \brief   Reads string data from Input Stream object and copies into given ASCII String.
+     * \brief   Reads string data from Input Stream object and copies into given ASCII string.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   asciiString     The buffer of ASCII String to stream data from Input Stream object.
+     * \param   asciiString     The buffer of ASCII string to stream data from Input Stream object.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( String & asciiString ) const override;
+    virtual unsigned int read( std::string & asciiString ) const override;
 
     /**
-     * \brief   Reads string data from Input Stream object and copies into given Wide String.
+     * \brief   Reads string data from Input Stream object and copies into given wide-string.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   wideString      The buffer of Wide String to stream data from Input Stream object.
+     * \param   wideString      The buffer of wide-string to stream data from Input Stream object.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( WideString & wideString ) const override;
+    virtual unsigned int read(std::wstring& wideString ) const override;
 
     /**
      * \brief	Reads data from input stream object, copies into given buffer and
@@ -281,20 +280,20 @@ public:
     virtual unsigned int write( const IEByteBuffer & buffer ) override;
 
     /**
-     * \brief   Writes string data from given ASCII String object to output stream object.
+     * \brief   Writes string data from given ASCII string object to output stream object.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   asciiString     The buffer of String containing data to stream to Output Stream.
+     * \param   asciiString     The buffer of string containing data to stream to Output Stream.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int write( const String & asciiString ) override;
+    virtual unsigned int write( const std::string & asciiString ) override;
 
     /**
-     * \brief   Writes string data from given wide-char String object to output stream object.
+     * \brief   Writes string data from given wide-string object to output stream object.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   wideString  The buffer of String containing data to stream to Output Stream.
+     * \param   wideString  The buffer of wide-string containing data to stream to Output Stream.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int write( const WideString & wideString ) override;
+    virtual unsigned int write( const std::wstring & wideString ) override;
 
     /**
      * \brief	Write data to output stream object from given buffer

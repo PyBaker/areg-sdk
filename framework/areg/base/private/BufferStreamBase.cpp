@@ -16,8 +16,7 @@
 #include "areg/base/BufferStreamBase.hpp"
 
 #include "areg/base/IECursorPosition.hpp"
-#include "areg/base/WideString.hpp"
-#include "areg/base/String.hpp"
+#include "areg/base/NECommon.hpp"
 #include "areg/base/NEMemory.hpp"
 #include "areg/base/NEUtilities.hpp"
 
@@ -85,7 +84,7 @@ unsigned int BufferStreamBase::read( IEByteBuffer & buffer ) const
 /**
  * \brief   Reads string data from Input Stream object, copies into given ASCII String and returns the size of copied data.
  **/
-unsigned int BufferStreamBase::read( String & asciiString ) const
+unsigned int BufferStreamBase::read(std::string& asciiString ) const
 {
     unsigned int result = 0;
     asciiString.clear();
@@ -94,7 +93,8 @@ unsigned int BufferStreamBase::read( String & asciiString ) const
     const unsigned char* data = getBufferToRead();
     if ( data != nullptr )
     {
-        result = (asciiString.setString(data) + 1) * sizeof(char);
+        asciiString = reinterpret_cast<const char*>(data);
+        result = (asciiString.length() + 1) * sizeof(char);
         mReadPosition.setPosition(static_cast<int>(curPos + result), IECursorPosition::eCursorPosition::PositionBegin);
     }
 
@@ -104,7 +104,7 @@ unsigned int BufferStreamBase::read( String & asciiString ) const
 /**
  * \brief   Reads string data from Input Stream object, copies into given Wide String and returns the size of copied data.
  **/
-unsigned int BufferStreamBase::read( WideString & wideString ) const
+unsigned int BufferStreamBase::read( std::wstring & wideString ) const
 {
     unsigned int result = 0;
     wideString.clear();
@@ -113,7 +113,8 @@ unsigned int BufferStreamBase::read( WideString & wideString ) const
     const unsigned char* data = getBufferToRead();
     if ( data != nullptr )
     {
-        result = (wideString.setString(data) + 1) * sizeof(wchar_t);
+        wideString = reinterpret_cast<const wchar_t*>(data);
+        result = (wideString.length() + 1) * sizeof(wchar_t);
         mReadPosition.setPosition(static_cast<int>(curPos + result), IECursorPosition::eCursorPosition::PositionBegin);
     }
 

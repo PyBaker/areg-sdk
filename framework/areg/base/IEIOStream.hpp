@@ -323,7 +323,7 @@ public:
      * \param	ascii	The instance of wide-string object as a data source.
      * \return	Returns the size in bytes of written data.
      **/
-    virtual unsigned int write( const std::string & wideString ) = 0;
+    virtual unsigned int write( const std::wstring & wideString ) = 0;
     virtual unsigned int write( const std::wstring_view & wideString ) = 0;
 
     /**

@@ -20,7 +20,6 @@
  ************************************************************************/
 #include "areg/base/GEGlobal.h"
 #include "areg/base/FileBase.hpp"
-#include "areg/base/String.hpp"
 #include "areg/base/Containers.hpp"
 
 #include <string_view>
@@ -269,20 +268,20 @@ public:
     virtual unsigned int read( IEByteBuffer & buffer ) const override;
 
     /**
-     * \brief   Reads string data from Input Stream object and copies into given ASCII String.
+     * \brief   Reads string data from Input Stream object and copies into given ASCII string.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   asciiString     The buffer of ASCII String to stream data from Input Stream object.
+     * \param   asciiString     The buffer of ASCII string to stream data from Input Stream object.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( String & asciiString ) const override;
+    virtual unsigned int read(std::string & asciiString ) const override;
 
     /**
-     * \brief   Reads string data from Input Stream object and copies into given Wide String.
+     * \brief   Reads string data from Input Stream object and copies into given wide-string.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   wideString      The buffer of Wide String to stream data from Input Stream object.
+     * \param   wideString      The buffer of wide-string to stream data from Input Stream object.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int read( WideString & wideString ) const override;
+    virtual unsigned int read(std::wstring & wideString ) const override;
 
     /**
      * \brief	Reads data from input stream object, copies into given buffer and
@@ -306,20 +305,20 @@ public:
     virtual unsigned int write( const IEByteBuffer & buffer ) override;
 
     /**
-     * \brief   Writes string data from given ASCII String object to output stream object.
+     * \brief   Writes string data from given ASCII string object to output stream object.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   asciiString     The buffer of String containing data to stream to Output Stream.
+     * \param   asciiString     The buffer of string containing data to stream to Output Stream.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int write( const String & asciiString ) override;
+    virtual unsigned int write( const std::string & asciiString ) override;
 
     /**
-     * \brief   Writes string data from given wide-char String object to output stream object.
+     * \brief   Writes string data from given wide-string object to output stream object.
      *          Overwrite method if need to change behavior of streaming string.
-     * \param   wideString  The buffer of String containing data to stream to Output Stream.
+     * \param   wideString  The buffer of wide-string containing data to stream to Output Stream.
      * \return  Returns the size in bytes of copied string data.
      **/
-    virtual unsigned int write( const WideString & wideString ) override;
+    virtual unsigned int write( const std::wstring & wideString ) override;
 
     /**
      * \brief	Write data to output stream object from given buffer
@@ -371,34 +370,34 @@ public:
      * \brief	Returns the absolute path to file / folder.
      * \param	filePath	Absolute or relative file / folder name.
      **/
-    static String getFileFullPath(const char * filePath = nullptr);
+    static std::string getFileFullPath(const char * filePath = nullptr);
 
     /**
      * \brief   Returns the full path of directory part of file path, including backslash
      * \param   filePath    Absolute or relative file path
      **/
-    static String getFileDirectory(const char * filePath);
+    static std::string getFileDirectory(const char * filePath);
 
     /**
      * \brief	Returns file name with extension of the given file path.
      *          If path is a folder, the file name is empty.
      * \param	filePath	Absolute or relative file path
      **/
-    static String getFileNameWithExtension(const char * filePath);
+    static std::string getFileNameWithExtension(const char * filePath);
 
     /**
      * \brief   Returns only file extension of the given file path.
      *          If path is a folder, the file name is empty.
      * \param   filePath    Absolute or relative file path
      **/
-    static String getFileExtension(const char * filePath);
+    static std::string getFileExtension(const char * filePath);
 
     /**
      * \brief   Returns only file name without extension of the given file path.
      *          If path is a folder, the file name is empty.
      * \param   filePath    Absolute or relative file path
      **/
-    static String getFileName(const char * filePath);
+    static std::string getFileName(const char * filePath);
 
     /**
      * \brief	Delete given file. Returns true if succeeds.
@@ -440,16 +439,16 @@ public:
      *                          File path in current folder will have relative path
      * \return	Absolute or relative path to temp file.
      **/
-    static String genTempFileName(const char * prefix, bool unique, bool inTempFolder);
+    static std::string genTempFileName(const char * prefix, bool unique, bool inTempFolder);
     /**
      * \brief   Generate unique temp file name in temporary folder with prefix TEMP_FILE_PREFIX ("_cz")
      **/
-    static String genTempFileName( void );
+    static std::string genTempFileName( void );
 
     /**
      * \brief	Returns absolute path of current directory
      **/
-    static String getCurrentDir( void );
+    static std::string getCurrentDir( void );
 
     /**
      * \brief	Sets current directory. Returns true if succeeds.
@@ -472,7 +471,7 @@ public:
     /**
      * \brief	Returns full path of system defined temporary folder
      **/
-    static String getTempDir( void );
+    static std::string getTempDir( void );
 
     /**
      * \brief	Checks whether the given path is an existing directory or not.
@@ -502,7 +501,7 @@ public:
      * \param   fileName    The file path and name to normalize.
      * \return  Returns generated unique and normalized file name.
      **/
-    static String normalizePath( const char * fileName );
+    static std::string normalizePath( const char * fileName );
 
     /**
      * \brief	Create Directories cascaded (nested) and returns true if succeeded or directories were already existing
@@ -520,7 +519,7 @@ public:
     /**
      * \brief   Returns folder location of current executable.
      **/
-    static const String & getExecutableDir( void );
+    static const std::string& getExecutableDir( void );
 
     /**
      * \brief   Returns special folder path. The type of required folder is defined in
@@ -529,14 +528,14 @@ public:
      * \return  If function succeeds, the return value is full path of special folder.
      *          Otherwise, it returns empty string.
      **/
-    static String getSpecialDir(const eSpecialFolder specialFolder);
+    static std::string getSpecialDir(const eSpecialFolder specialFolder);
 
     /**
      * \brief   Returns the parent directory of given path, which can be either file or directory.
      * \param   filePath    Path of file or directory to get the parent directory.
      * \return  If succeeded, the return string contains full path to parent directory.
      **/
-    static String getParentDir( const char * filePath );
+    static std::string getParentDir( const char * filePath );
 
     /**
      * \brief   Finds the parent directory name in the given file path. On output, if parameter 'nextPos' is not nullptr, 
@@ -558,8 +557,8 @@ public:
      *      printf("File  : %s\n", filePath);
      *      while( File::findParent(filePath, &nextPos, lastPos) )
      *      {
-     *          String str(filePath, MACRO_ELEM_COUNT(filePath, nextPos));
-     *          printf("Parent: %s .\n", str.getString());
+     *          std::string str(filePath, MACRO_ELEM_COUNT(filePath, nextPos));
+     *          printf("Parent: %s .\n", str.c_str());
      *          lastPos = nextPos;
      *      }
      *

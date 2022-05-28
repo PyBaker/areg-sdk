@@ -23,8 +23,8 @@
 #include "areg/base/GEGlobal.h"
 
 #include "areg/base/ThreadAddress.hpp"
-#include "areg/base/String.hpp"
 
+#include <string>
 #include <utility>
 
 /************************************************************************
@@ -74,7 +74,7 @@ public:
      * \param   componentAddress    The address of Component to create path
      * \return  Returns converted path of Component as string, containing Component address information
      **/
-    static String convAddressToPath( const ComponentAddress & componentAddress );
+    static std::string convAddressToPath( const ComponentAddress & componentAddress );
 
     /**
      * \brief   From given component path creates component address and returns pointer
@@ -211,7 +211,7 @@ public:
     /**
      * \brief   Returns the name of component (role name)
      **/
-    inline const String & getRoleName( void ) const;
+    inline const std::string & getRoleName( void ) const;
 
     /**
      * \brief   Return true if component address if valid.
@@ -224,7 +224,7 @@ public:
      *          Every part of component address has a special path separator.
      * \return  Returns converted path of Component as a string.
      **/
-    String convToString( void ) const;
+    std::string convToString( void ) const;
 
     /**
      * \brief	Parses component path string and retrieves component address data from path.
@@ -255,10 +255,18 @@ private:
 /************************************************************************/
 // Private member variables
 /************************************************************************/
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+    #pragma warning(disable: 4251)
+#endif  // _MSC_VER
     /**
      * \brief   Component name. Or Role Name of component
      **/
     std::string     mRoleName;
+
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+    #pragma warning(default: 4251)
+#endif  // _MSC_VER
+
     /**
      * \brief   Thread address object.
      **/

@@ -1028,6 +1028,74 @@ namespace NEString
      */
     template<typename CharType>
     int makeInteger(const CharType * strNumber, const CharType ** remain);
+
+    /**
+     * \brief   Converts given string of digits to 32-bit integer
+     * \param   strDigit    The string with digits. Can contain negative or positive sign in front
+     * \param   radix       The base value when calculate integer.
+     * \param   end [out]   If not nullptr, on output this contains value of pointer to the next character in strDigit buffer after the numerical value.
+     * \return  Returns the 32-bit integer
+     **/
+    template<typename CharType>
+    int32_t makeInt32(const CharType* strDigit, NEString::eRadix radix = NEString::eRadix::RadixDecimal, const CharType** end = nullptr);
+
+    /**
+     * \brief   Converts given string of digits to 32-bit unsigned integer
+     * \param   strDigit    The string with digits.
+     * \param   radix       The base value when calculate integer.
+     * \param   end [out]   If not nullptr, on output this contains value of pointer to the next character in strDigit buffer after the numerical value.
+     * \return  Returns the 32-bit unsigned integer
+     **/
+    template<typename CharType>
+    uint32_t makeUInt32(const CharType * strDigit, NEString::eRadix radix = NEString::eRadix::RadixDecimal, const CharType ** end = nullptr);
+
+    /**
+     * \brief   Converts given string of digits to 64-bit integer
+     * \param   strDigit    The string with digits. Can contain negative or positive sign in front
+     * \param   radix       The base value when calculate integer.
+     * \param   end [out]   If not nullptr, on output this contains value of pointer to the next character in strDigit buffer after the numerical value.
+     * \return  Returns the 64-bit integer
+     **/
+    template<typename CharType>
+    int64_t makeInt64(const CharType* strDigit, NEString::eRadix radix = NEString::eRadix::RadixDecimal, const CharType** end = nullptr);
+
+    /**
+     * \brief   Converts given string of digits to 64-bit unsigned integer
+     * \param   strDigit    The string with digits.
+     * \param   radix       The base value when calculate integer.
+     * \param   end [out]   If not nullptr, on output this contains value of pointer to the next character in strDigit buffer after the numerical value.
+     * \return  Returns the 64-bit unsigned integer
+     **/
+    template<typename CharType>
+    uint64_t makeUInt64(const CharType* strDigit, NEString::eRadix radix = NEString::eRadix::RadixDecimal, const CharType** end = nullptr);
+
+    /**
+     * \brief   Converts given string of digits to 32-bit digit with floating point
+     * \param   strDigit    The string with digits.
+     * \param   end [out]   If not nullptr, on output this contains value of pointer to the next character in strDigit buffer after the numerical value.
+     * \return  Returns the 32-bit digit with floating point
+     **/
+    template<typename CharType>
+    float makeFloat(const CharType* strDigit, const CharType** end = nullptr);
+
+    /**
+     * \brief   Converts given string of digits to 64-bit digit with floating point
+     * \param   strDigit    The string with digits.
+     * \param   end [out]   If not nullptr, on output this contains value of pointer to the next character in strDigit buffer after the numerical value.
+     * \return  Returns the 64-bit digit with floating point
+     **/
+    template<typename CharType>
+    double makeDouble(const CharType* strDigit, const CharType** end = nullptr);
+
+    /**
+     * \brief   Converts given string to boolean value
+     * \param   strBoolean  The string to convert.
+     * \param   end [out]   If not nullptr, on output this contains value of pointer to the next character in strBoolean buffer after the numerical value.
+     * \return  Returns the 64-bit digit with floating point
+     **/
+    template<typename CharType>
+    bool makeBool(const CharType* strBoolean, const CharType** end = nullptr);
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1153,6 +1221,182 @@ int NEString::makeInteger(const CharType * strNumber, const CharType ** remain)
         *remain = strNumber;
     
     return (static_cast<int>(sign) * result);
+}
+
+template<typename CharType>
+int32_t NEString::makeInt32(const CharType* strDigit, NEString::eRadix radix /*= NEString::RadixDecimal*/, const CharType** end /*= nullptr*/)
+{
+    CharType * temp = nullptr;
+    int32_t result = 0;
+    if (NEString::isEmpty<ChaType>(strDigit) == false)
+    {
+        if (sizeof(CharType) == 1)
+        {
+            result = strtol(static_cast<const char*>(strDigit), static_cast<char **>(&temp), static_cast<int>(radix));
+        }
+        else if (sizeof(CharType) == 2)
+        {
+            result = wcstol(static_cast<const wchar_t *>(strDigit), static_cast<wchar_t **>(&temp), static_cast<int>(radix));
+        }
+    }
+
+    if (end != nullptr)
+    {
+        *end = temp != nullptr ? temp : strDigit;
+    }
+
+    return result;
+}
+
+template<typename CharType>
+uint32_t NEString::makeUInt32(const CharType* strDigit, NEString::eRadix radix /*= NEString::RadixDecimal*/, const CharType** end /*= nullptr*/)
+{
+    CharType* temp = nullptr;
+    uint32_t result = 0;
+    if (NEString::isEmpty<ChaType>(strDigit) == false)
+    {
+        if (sizeof(CharType) == 1)
+        {
+            result = strtoul(static_cast<const char*>(strDigit), static_cast<char**>(&temp), static_cast<int>(radix));
+        }
+        else if (sizeof(CharType) == 2)
+        {
+            result = wcstoul(static_cast<const wchar_t *>(strDigit), static_cast<wchar_t**>(&temp), static_cast<int>(radix));
+        }
+    }
+
+    if (end != nullptr)
+    {
+        *end = temp != nullptr ? temp : strDigit;
+    }
+
+    return result;
+}
+
+template<typename CharType>
+int64_t NEString::makeInt64(const CharType* strDigit, NEString::eRadix radix /*= NEString::RadixDecimal*/, const CharType** end /*= nullptr*/)
+{
+    CharType* temp = nullptr;
+    int64_t result = 0;
+    if (NEString::isEmpty<ChaType>(strDigit) == false)
+    {
+        if (sizeof(CharType) == 1)
+        {
+            result = strtoll(static_cast<const char*>(strDigit), static_cast<char**>(&temp), static_cast<int>(radix));
+        }
+        else if (sizeof(CharType) == 2)
+        {
+            result = wcstoll(static_cast<const wchar_t*>(strDigit), static_cast<wchar_t**>(&temp), static_cast<int>(radix));
+        }
+    }
+
+    if (end != nullptr)
+    {
+        *end = temp != nullptr ? temp : strDigit;
+    }
+
+    return result;
+}
+
+template<typename CharType>
+uint64_t NEString::makeUInt64(const CharType* strDigit, NEString::eRadix radix /*= NEString::RadixDecimal*/, const CharType** end /*= nullptr*/)
+{
+    CharType* temp = nullptr;
+    uint64_t result = 0;
+    if (NEString::isEmpty<ChaType>(strDigit) == false)
+    {
+        if (sizeof(CharType) == 1)
+        {
+            result = strtoull(static_cast<const char*>(strDigit), static_cast<char**>(&temp), static_cast<int>(radix));
+        }
+        else if (sizeof(CharType) == 2)
+        {
+            result = wcstoull(static_cast<const wchar_t*>(strDigit), static_cast<wchar_t**>(&temp), static_cast<int>(radix));
+        }
+    }
+
+    if (end != nullptr)
+    {
+        *end = temp != nullptr ? temp : strDigit;
+    }
+
+    return result;
+}
+
+template<typename CharType>
+float NEString::makeFloat(const CharType* strDigit, const CharType** end /*= nullptr*/)
+{
+    CharType* temp = nullptr;
+    float result = 0;
+    if (NEString::isEmpty<ChaType>(strDigit) == false)
+    {
+        if (sizeof(CharType) == 1)
+        {
+            result = strtof(static_cast<const char*>(strDigit), static_cast<char**>(&temp));
+        }
+        else if (sizeof(CharType) == 2)
+        {
+            result = wcstof(static_cast<const wchar_t*>(strDigit), static_cast<wchar_t**>(&temp));
+        }
+    }
+
+    if (end != nullptr)
+    {
+        *end = temp != nullptr ? temp : strDigit;
+    }
+
+    return result;
+}
+
+template<typename CharType>
+double NEString::makeDouble(const CharType* strDigit, const CharType** end /*= nullptr*/)
+{
+    CharType* temp = nullptr;
+    double result = 0;
+    if (NEString::isEmpty<ChaType>(strDigit) == false)
+    {
+        if (sizeof(CharType) == 1)
+        {
+            result = strtod(static_cast<const char*>(strDigit), static_cast<char**>(&temp));
+        }
+        else if (sizeof(CharType) == 2)
+        {
+            result = wcstod(static_cast<const wchar_t*>(strDigit), static_cast<wchar_t**>(&temp));
+        }
+    }
+
+    if (end != nullptr)
+    {
+        *end = temp != nullptr ? temp : strDigit;
+    }
+
+    return result;
+}
+
+template<typename CharType>
+bool NEString::makeBool(const CharType* strBoolean, const CharType** end /*= nullptr*/)
+{
+    bool result = false;
+    int lenSkip = 0;
+    int lenTrue = static_cast<int>(NECommon::BOOLEAN_TRUE.length());
+    int lenFalse = static_cast<int>(NECommon::BOOLEAN_FALSE.length());
+    if (NEString::compareStrings<char, char>(strBoolean, NECommon::BOOLEAN_TRUE.data(), lenTrue, false) == 0)
+    {
+        result = true;
+        lenSkip = lenTrue;
+    }
+    else if (NEString::compareStrings<char, char>(strBoolean, NECommon::BOOLEAN_FALSE.data(), lenFalse, false) == 0)
+    {
+        result = false;
+        lenSkip = lenFalse;
+    }
+
+    if (end != nullptr)
+    {
+        *end = (strBoolean + lenSkip);
+    }
+
+    return result;
 }
 
 template<typename CharType>
